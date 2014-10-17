@@ -63,7 +63,7 @@ public class VietnameseTokenizer extends Tokenizer {
             final TaggedWord word = taggedWords.next();
             final int wordLength = word.getText().length();
             termAttribute.copyBuffer(word.getText().trim().toCharArray(), 0, wordLength);
-            typeAttribute.setType(word.getRule().getName());
+            typeAttribute.setType(String.format("<%s>", word.getRule().getName().toUpperCase()));
             offsetAttribute.setOffset(correctOffset(offset), finalOffset = correctOffset(offset + wordLength));
             offset += wordLength;
             return true;
