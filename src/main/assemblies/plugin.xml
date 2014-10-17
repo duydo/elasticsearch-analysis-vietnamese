@@ -19,11 +19,9 @@
             <useProjectArtifact>true</useProjectArtifact>
             <useTransitiveFiltering>true</useTransitiveFiltering>
             <includes>
-                <include>vn.hus.nlp:fsm</include>
-                <include>vn.hus.nlp:utils</include>
-                <include>org.apache.opennlp:opennlp-tools</include>
-                <include>opennlp:maxent</include>
-                <include>trove:trove</include>
+                <include>vn.hus:nlp-tokenizer</include>
+                <include>vn.hus:nlp-sd</include>
+                <include>commons-io:commons-io</include>
             </includes>
         </dependencySet>
     </dependencySets>

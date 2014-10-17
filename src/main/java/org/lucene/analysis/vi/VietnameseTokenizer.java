@@ -24,38 +24,34 @@ import java.util.List;
  * @author duydo
  */
 public class VietnameseTokenizer extends Tokenizer {
+
     private Iterator<TaggedWord> taggedWords;
 
     private int offset = 0;
-    private final CharTermAttribute termAtt;
-    private final OffsetAttribute offsetAtt;
-    private final TypeAttribute type;
+    private int finalOffset = 0;
+
+    private final CharTermAttribute termAttribute;
+    private final OffsetAttribute offsetAttribute;
+    private final TypeAttribute typeAttribute;
+
+    private final vn.hus.nlp.tokenizer.Tokenizer tokenizer;
+    private final SentenceDetector sentenceDetector;
 
     public VietnameseTokenizer(Reader input) {
         super(input);
-        termAtt = addAttribute(CharTermAttribute.class);
-        offsetAtt = addAttribute(OffsetAttribute.class);
-        type = addAttribute(TypeAttribute.class);
+        termAttribute = addAttribute(CharTermAttribute.class);
+        offsetAttribute = addAttribute(OffsetAttribute.class);
+        typeAttribute = addAttribute(TypeAttribute.class);
+        tokenizer = TokenizerProvider.getInstance().getTokenizer();
+        sentenceDetector = SentenceDetectorFactory.create(IConstants.LANG_VIETNAMESE);
     }
 
-    private final void tokenize(Reader input) {
+    private void tokenize(Reader input) throws IOException {
         final List<TaggedWord> words = Lists.newArrayList();
-        try {
-            final vn.hus.nlp.tokenizer.Tokenizer tokenizer = TokenizerProvider.getInstance()
-                    .getTokenizer();
-            final SentenceDetector sentenceDetector = SentenceDetectorFactory.create(IConstants.LANG_VIETNAMESE);
-            String[] sentences = sentenceDetector.detectSentences(input);
-            for (String s : sentences) {
-                tokenizer.tokenize(new StringReader(s));
-                for (TaggedWord taggedWord : tokenizer.getResult()) {
-                    words.add(taggedWord);
-                }
-            }
-            tokenizer.tokenize(input);
-            for (TaggedWord taggedWord : tokenizer.getResult()) {
-                words.add(taggedWord);
-            }
-        } catch (IOException e) {
+        String[] sentences = sentenceDetector.detectSentences(input);
+        for (String s : sentences) {
+            tokenizer.tokenize(new StringReader(s));
+            words.addAll(tokenizer.getResult());
         }
         taggedWords = words.iterator();
     }
@@ -65,10 +61,10 @@ public class VietnameseTokenizer extends Tokenizer {
         clearAttributes();
         if (taggedWords.hasNext()) {
             final TaggedWord word = taggedWords.next();
-            termAtt.append(word.getText());
-            type.setType(word.getRule().getName());
             final int wordLength = word.getText().length();
-            offsetAtt.setOffset(offset, offset + wordLength);
+            termAttribute.copyBuffer(word.getText().trim().toCharArray(), 0, wordLength);
+            typeAttribute.setType(word.getRule().getName());
+            offsetAttribute.setOffset(correctOffset(offset), finalOffset = correctOffset(offset + wordLength));
             offset += wordLength;
             return true;
         }
@@ -78,14 +74,14 @@ public class VietnameseTokenizer extends Tokenizer {
     @Override
     public final void end() throws IOException {
         super.end();
-        final int finalOffset = correctOffset(offset);
-        offsetAtt.setOffset(finalOffset, finalOffset);
+        offsetAttribute.setOffset(finalOffset, finalOffset);
     }
 
     @Override
     public void reset() throws IOException {
         super.reset();
         offset = 0;
+        finalOffset = 0;
         tokenize(input);
     }
 }

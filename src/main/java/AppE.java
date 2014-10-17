@@ -1,5 +1,7 @@
 import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
+import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 import org.apache.lucene.util.Version;
 import org.lucene.analysis.vi.VietnameseTokenizer;
 
@@ -44,16 +46,19 @@ public class AppE {
         }
     }
     public static void main(String[] args) throws Exception {
-        String text = "Gia tăng đóng góp của ASEM trước những chuyển biến khôn lường";
-        VietnameseTokenizer tokenizer = new VietnameseTokenizer(new StringReader(text));
-//        StandardTokenizer tokenizer = new StandardTokenizer(Version.LUCENE_4_9, new StringReader(text));
+        String text = "Ông già đi nhanh quá. Tôi đuổi theo không kịp, tôi phải làm sao!";
+//        VietnameseTokenizer tokenizer = new VietnameseTokenizer(new StringReader(text));
+        StandardTokenizer tokenizer = new StandardTokenizer(Version.LUCENE_4_9, new StringReader(text));
 
-        CharTermAttribute termAttribute = tokenizer.getAttribute(CharTermAttribute.class);
+        CharTermAttribute termAtt = tokenizer.getAttribute(CharTermAttribute.class);
+        OffsetAttribute offset = tokenizer.getAttribute(OffsetAttribute.class);
+        TypeAttribute typeAtt = tokenizer.getAttribute(TypeAttribute.class);
 
+        tokenizer.reset();
         while (tokenizer.incrementToken()) {
-            System.out.println(termAttribute);
+            System.out.println(termAtt);
         }
-
-
+        tokenizer.end();
+        tokenizer.close();
     }
 }
