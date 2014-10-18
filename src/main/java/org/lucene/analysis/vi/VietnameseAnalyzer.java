@@ -5,7 +5,6 @@ import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.core.LowerCaseFilter;
 import org.apache.lucene.analysis.core.StopFilter;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.analysis.standard.StandardFilter;
 import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.analysis.util.StopwordAnalyzerBase;
 import org.apache.lucene.util.Version;
@@ -31,8 +30,7 @@ public class VietnameseAnalyzer extends StopwordAnalyzerBase {
                 "rằng", "rằng", "rất", "rất", "rồi", "sau", "sẽ", "so", "sự", "tại", "theo", "thì", "trên", "trước",
                 "từ", "từng", "và", "vẫn", "vào", "vậy", "vì", "việc", "với", "vừa"
         );
-        final CharArraySet stopSet = new CharArraySet(Lucene.VERSION,
-                stopWords, false);
+        final CharArraySet stopSet = new CharArraySet(Lucene.VERSION, stopWords, false);
         VIETNAMESE_STOP_WORDS_SET = CharArraySet.unmodifiableSet(stopSet);
     }
 
@@ -73,9 +71,9 @@ public class VietnameseAnalyzer extends StopwordAnalyzerBase {
 
     @Override
     protected TokenStreamComponents createComponents(String fieldName, Reader reader) {
-        final Tokenizer source = new VietnameseTokenizer(reader);
-        TokenStream result = new LowerCaseFilter(matchVersion, new StandardFilter(matchVersion, source));
-        result = new StopFilter(matchVersion, result, stopwords);
-        return new TokenStreamComponents(source, result);
+        final Tokenizer tokenizer = new VietnameseTokenizer(reader);
+        TokenStream tokenStream = new LowerCaseFilter(matchVersion, tokenizer);
+        tokenStream = new StopFilter(matchVersion, tokenStream, stopwords);
+        return new TokenStreamComponents(tokenizer, tokenStream);
     }
 }
