@@ -106,7 +106,9 @@ public class VietnameseTokenizer extends Tokenizer {
     @Override
     public final void end() throws IOException {
         super.end();
+        // set final offset
         offsetAtt.setOffset(finalOffset, finalOffset);
+        // adjust any skipped tokens
         posIncrAtt.setPositionIncrement(posIncrAtt.getPositionIncrement() + skippedPositions);
     }
 

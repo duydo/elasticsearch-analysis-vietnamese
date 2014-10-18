@@ -18,7 +18,7 @@ public class VietnameseAnalyzerProvider extends AbstractIndexAnalyzerProvider<Vi
                                       Settings settings) {
         super(index, indexSettings, name, settings);
         analyzer = new VietnameseAnalyzer(version,
-                Analysis.parseStopWords(env, settings, VietnameseAnalyzer.getDefaultStopSet(), version)
+                Analysis.parseStopWords(env, settings, VietnameseAnalyzer.getDefaultStopSet(), version, true)
         );
     }
 
