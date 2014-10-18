@@ -3,6 +3,7 @@ package org.lucene.analysis.vi;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
+import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 import org.elasticsearch.common.collect.Lists;
 import vn.hus.nlp.sd.IConstants;
@@ -29,52 +30,84 @@ public class VietnameseTokenizer extends Tokenizer {
 
     private int offset = 0;
     private int finalOffset = 0;
+    private int skippedPositions;
 
-    private final CharTermAttribute termAttribute;
-    private final OffsetAttribute offsetAttribute;
-    private final TypeAttribute typeAttribute;
 
-    private final vn.hus.nlp.tokenizer.Tokenizer tokenizer;
-    private final SentenceDetector sentenceDetector;
+    private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
+    private final OffsetAttribute offsetAtt = addAttribute(OffsetAttribute.class);
+    private final TypeAttribute typeAtt = addAttribute(TypeAttribute.class);
+    private final PositionIncrementAttribute posIncrAtt = addAttribute(PositionIncrementAttribute.class);
+
+    private vn.hus.nlp.tokenizer.Tokenizer tokenizer;
+    private SentenceDetector sentenceDetector;
 
     public VietnameseTokenizer(Reader input) {
-        super(input);
-        termAttribute = addAttribute(CharTermAttribute.class);
-        offsetAttribute = addAttribute(OffsetAttribute.class);
-        typeAttribute = addAttribute(TypeAttribute.class);
-        tokenizer = TokenizerProvider.getInstance().getTokenizer();
-        sentenceDetector = SentenceDetectorFactory.create(IConstants.LANG_VIETNAMESE);
+        this(input, true, false);
     }
 
-    private void tokenize(Reader input) throws IOException {
-        final List<TaggedWord> words = Lists.newArrayList();
-        String[] sentences = sentenceDetector.detectSentences(input);
-        for (String s : sentences) {
-            tokenizer.tokenize(new StringReader(s));
-            words.addAll(tokenizer.getResult());
+    public VietnameseTokenizer(Reader input, boolean useSentenceDetector, boolean useAmbiguitiesResolved) {
+        super(input);
+        if (useSentenceDetector) {
+            sentenceDetector = SentenceDetectorFactory.create(IConstants.LANG_VIETNAMESE);
         }
-        taggedWords = words.iterator();
+        tokenizer = TokenizerProvider.getInstance().getTokenizer();
+        tokenizer.setAmbiguitiesResolved(useAmbiguitiesResolved);
+    }
+
+
+    private void tokenize(Reader input) throws IOException {
+        if(sentenceDetector == null) {
+            tokenizer.tokenize(input);
+            taggedWords = tokenizer.getResult().iterator();
+        } else {
+            final List<TaggedWord> words = Lists.newArrayList();
+            final String[] sentences = sentenceDetector.detectSentences(input);
+            for (String s : sentences) {
+                tokenizer.tokenize(new StringReader(s));
+                words.addAll(tokenizer.getResult());
+            }
+            taggedWords = words.iterator();
+        }
     }
 
     @Override
     public final boolean incrementToken() throws IOException {
         clearAttributes();
-        if (taggedWords.hasNext()) {
+        while (taggedWords.hasNext()) {
             final TaggedWord word = taggedWords.next();
             final int length = word.getText().length();
-            termAttribute.copyBuffer(word.getText().trim().toCharArray(), 0, length);
-            typeAttribute.setType(String.format("<%s>", word.getRule().getName().toUpperCase()));
-            offsetAttribute.setOffset(correctOffset(offset), finalOffset = correctOffset(offset + length));
+            final int currentOffset = offset;
             offset += length;
-            return true;
+            if (accept(word)) {
+                posIncrAtt.setPositionIncrement(skippedPositions + 1);
+                termAtt.copyBuffer(word.getText().trim().toCharArray(), 0, length);
+                offsetAtt.setOffset(correctOffset(currentOffset), finalOffset = correctOffset(offset));
+                typeAtt.setType(String.format("<%s>", word.getRule().getName().toUpperCase()));
+                return true;
+            } else {
+                // When we skip non-word characters, we still increment the position increment
+                skippedPositions++;
+            }
         }
         return false;
+    }
+
+    /**
+     * Only accept the word characters.
+     */
+    private final boolean accept(TaggedWord word) {
+        final String token = word.getText();
+        if (token.length() == 1) {
+            return Character.isLetterOrDigit(token.charAt(0));
+        }
+        return true;
     }
 
     @Override
     public final void end() throws IOException {
         super.end();
-        offsetAttribute.setOffset(finalOffset, finalOffset);
+        offsetAtt.setOffset(finalOffset, finalOffset);
+        posIncrAtt.setPositionIncrement(posIncrAtt.getPositionIncrement() + skippedPositions);
     }
 
     @Override
@@ -82,6 +115,7 @@ public class VietnameseTokenizer extends Tokenizer {
         super.reset();
         offset = 0;
         finalOffset = 0;
+        skippedPositions = 0;
         tokenize(input);
     }
 }
