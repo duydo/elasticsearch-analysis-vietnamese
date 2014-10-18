@@ -9,8 +9,8 @@ import org.elasticsearch.index.analysis.AnalyzerScope;
 import org.elasticsearch.index.analysis.PreBuiltAnalyzerProviderFactory;
 import org.elasticsearch.index.analysis.PreBuiltTokenizerFactoryFactory;
 import org.elasticsearch.index.analysis.TokenizerFactory;
-import org.lucene.analysis.vi.VietnameseAnalyzer;
-import org.lucene.analysis.vi.VietnameseTokenizer;
+import org.apache.lucene.analysis.vi.VietnameseAnalyzer;
+import org.apache.lucene.analysis.vi.VietnameseTokenizer;
 
 import java.io.Reader;
 

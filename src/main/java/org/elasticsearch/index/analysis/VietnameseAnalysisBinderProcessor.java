@@ -6,7 +6,7 @@ package org.elasticsearch.index.analysis;
 public class VietnameseAnalysisBinderProcessor extends AnalysisModule.AnalysisBinderProcessor {
     @Override
     public void processAnalyzers(AnalyzersBindings analyzersBindings) {
-        analyzersBindings.processAnalyzer("vi_analyzer", VietnameseAnalyzerProvider.class);
+        analyzersBindings.processAnalyzer("vietnamese", VietnameseAnalyzerProvider.class);
     }
 
     @Override

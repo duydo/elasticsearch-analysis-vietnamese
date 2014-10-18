@@ -1,10 +1,9 @@
-package org.lucene.analysis.vi;
+package org.apache.lucene.analysis.vi;
 
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.core.LowerCaseFilter;
 import org.apache.lucene.analysis.core.StopFilter;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.analysis.util.StopwordAnalyzerBase;
 import org.apache.lucene.util.Version;
@@ -46,10 +45,10 @@ public class VietnameseAnalyzer extends StopwordAnalyzerBase {
 
     /**
      * Atomically loads the DEFAULT_STOP_SET in a lazy fashion once the outer class
-     * accesses the static final set the first time.;
+     * accesses the static final set the first time.
      */
     private static class DefaultSetHolder {
-        static final CharArraySet DEFAULT_STOP_SET = StandardAnalyzer.STOP_WORDS_SET;
+        static final CharArraySet DEFAULT_STOP_SET = VIETNAMESE_STOP_WORDS_SET;
     }
 
     /**

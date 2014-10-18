@@ -1,11 +1,10 @@
-package org.lucene.analysis.vi;
+package org.apache.lucene.analysis.vi;
 
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
-import org.elasticsearch.common.collect.Lists;
 import vn.hus.nlp.sd.IConstants;
 import vn.hus.nlp.sd.SentenceDetector;
 import vn.hus.nlp.sd.SentenceDetectorFactory;
@@ -15,6 +14,7 @@ import vn.hus.nlp.tokenizer.tokens.TaggedWord;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -56,11 +56,11 @@ public class VietnameseTokenizer extends Tokenizer {
 
 
     private void tokenize(Reader input) throws IOException {
-        if(sentenceDetector == null) {
+        if (sentenceDetector == null) {
             tokenizer.tokenize(input);
             taggedWords = tokenizer.getResult().iterator();
         } else {
-            final List<TaggedWord> words = Lists.newArrayList();
+            final List<TaggedWord> words = new ArrayList<TaggedWord>();
             final String[] sentences = sentenceDetector.detectSentences(input);
             for (String s : sentences) {
                 tokenizer.tokenize(new StringReader(s));
