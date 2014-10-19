@@ -1,10 +1,10 @@
 {
     "index": {
         "analysis": {
-            "analyzer" : {
-                "my_analyzer" : {
-                    "type" : "custom",
-                    "tokenizer" : "vi_tokenizer"
+            "analyzer": {
+                "my_analyzer": {
+                    "type": "custom",
+                    "tokenizer": "vi_tokenizer"
                 }
             }
         }
