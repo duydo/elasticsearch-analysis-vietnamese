@@ -15,6 +15,7 @@ import org.apache.lucene.analysis.vi.VietnameseTokenizer;
 import java.io.Reader;
 
 /**
+ * Registers indices level analysis components so, if not explicitly configured, will be shared among all indices.
  * @author duydo
  */
 public class VietnameseIndicesAnalysis extends AbstractComponent {
