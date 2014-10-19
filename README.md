@@ -20,8 +20,8 @@ bin/plugin --install analysis-vietnamese --url file:target/releases/elasticsearc
 
 |Vietnamese Analysis Plugin|Elasticsearch|
 |---|---|
-| master|1.3|
-| 0.1|1.3|
+| master|1.3.x|
+| 0.1|1.3.x|
 
 
 ## User guide
