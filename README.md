@@ -19,6 +19,12 @@ bin/plugin --install analysis-vietnamese
 
 *Notes*: To build the plugin you need to clone and build the [vn-nlp-libararies](https://github.com/duydo/vn-nlp-libraries). The plugin uses  [Lê Hồng Phương](http://mim.hus.vnu.edu.vn/phuonglh/) vnTokenizer library. Thanks thầy Lê Hồng Phương for great contribution.
 
+|Vietnamese Analysis Plugin|Elasticsearch|
+|---|---|
+| master|1.3|
+| 0.1|1.3|
+
+
 ## User guide
 
 The plugin includes the `vi_analyzer` analyzer and `vi_tokenizer` tokenizer.
