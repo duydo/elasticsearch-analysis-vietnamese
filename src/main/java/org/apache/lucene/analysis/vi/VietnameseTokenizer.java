@@ -102,7 +102,7 @@ public class VietnameseTokenizer extends Tokenizer {
                 posIncrAtt.setPositionIncrement(skippedPositions + 1);
                 termAtt.copyBuffer(word.getText().trim().toCharArray(), 0, length);
                 offsetAtt.setOffset(correctOffset(currentOffset), finalOffset = correctOffset(offset));
-                typeAtt.setType(String.format("<%s>", word.getRule().getName().toUpperCase()));
+                typeAtt.setType(word.getRule().getName());
                 return true;
             } else {
                 // When we skip non-word characters, we still increment the position increment
