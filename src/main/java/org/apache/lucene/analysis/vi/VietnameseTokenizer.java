@@ -41,25 +41,28 @@ public class VietnameseTokenizer extends Tokenizer {
     private vn.hus.nlp.tokenizer.Tokenizer tokenizer;
     private SentenceDetector sentenceDetector;
 
+    private boolean sentenceDetectorEnabled;
+    private boolean ambiguitiesResolved;
+
     public VietnameseTokenizer(Reader input) {
         this(input, true, false);
     }
 
-    public VietnameseTokenizer(Reader input, boolean useSentenceDetector, boolean useAmbiguitiesResolved) {
+    public VietnameseTokenizer(Reader input, boolean sentenceDetectorEnabled, boolean ambiguitiesResolved) {
         super(input);
-        if (useSentenceDetector) {
+        this.sentenceDetectorEnabled = sentenceDetectorEnabled;
+        this.ambiguitiesResolved = ambiguitiesResolved;
+
+        if (this.sentenceDetectorEnabled) {
             sentenceDetector = SentenceDetectorFactory.create(IConstants.LANG_VIETNAMESE);
         }
+
         tokenizer = TokenizerProvider.getInstance().getTokenizer();
-        tokenizer.setAmbiguitiesResolved(useAmbiguitiesResolved);
+        tokenizer.setAmbiguitiesResolved(ambiguitiesResolved);
     }
 
-
     private void tokenize(Reader input) throws IOException {
-        if (sentenceDetector == null) {
-            tokenizer.tokenize(input);
-            taggedWords = tokenizer.getResult().iterator();
-        } else {
+        if (isSentenceDetectorEnabled()) {
             final List<TaggedWord> words = new ArrayList<TaggedWord>();
             final String[] sentences = sentenceDetector.detectSentences(input);
             for (String s : sentences) {
@@ -67,6 +70,9 @@ public class VietnameseTokenizer extends Tokenizer {
                 words.addAll(tokenizer.getResult());
             }
             taggedWords = words.iterator();
+        } else {
+            tokenizer.tokenize(input);
+            taggedWords = tokenizer.getResult().iterator();
         }
     }
 
@@ -119,5 +125,13 @@ public class VietnameseTokenizer extends Tokenizer {
         finalOffset = 0;
         skippedPositions = 0;
         tokenize(input);
+    }
+
+    public boolean isSentenceDetectorEnabled() {
+        return sentenceDetectorEnabled;
+    }
+
+    public boolean isAmbiguitiesResolved() {
+        return ambiguitiesResolved;
     }
 }
