@@ -13,8 +13,7 @@ Or to build from source, you need to build it with Maven:
 
 ```bash
 mvn clean package
-bin/plugin --install analysis-vietnamese
-       --url file:target/releases/elasticsearch-analysis-vietnamese-0.1.zip
+bin/plugin --install analysis-vietnamese --url file:target/releases/elasticsearch-analysis-vietnamese-0.1.zip
 ```
 
 *Notes*: To build the plugin you need to clone and build the [vn-nlp-libararies](https://github.com/duydo/vn-nlp-libraries). The plugin uses  [Lê Hồng Phương](http://mim.hus.vnu.edu.vn/phuonglh/) vnTokenizer library. Thanks thầy Lê Hồng Phương for great contribution.
