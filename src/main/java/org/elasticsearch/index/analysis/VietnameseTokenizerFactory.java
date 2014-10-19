@@ -2,6 +2,7 @@ package org.elasticsearch.index.analysis;
 
 import org.apache.lucene.analysis.Tokenizer;
 import org.elasticsearch.common.inject.Inject;
+import org.elasticsearch.common.inject.assistedinject.Assisted;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.Index;
 import org.apache.lucene.analysis.vi.VietnameseTokenizer;
@@ -14,18 +15,19 @@ import java.io.Reader;
  */
 public class VietnameseTokenizerFactory extends AbstractTokenizerFactory {
 
-    private boolean useSentenceDetector = true;
-    private boolean useAmbiguitiesResolved = false;
+    private final boolean sentenceDetectorEnabled;
+    private final boolean ambiguitiesResolved;
 
     @Inject
-    public VietnameseTokenizerFactory(Index index, @IndexSettings Settings indexSettings, String name, Settings settings) {
+    public VietnameseTokenizerFactory(Index index, @IndexSettings Settings indexSettings, @Assisted String name,
+                                      @Assisted Settings settings) {
         super(index, indexSettings, name, settings);
-        useSentenceDetector = settings.getAsBoolean("use_sentence_detector", Boolean.TRUE);
-        useAmbiguitiesResolved = settings.getAsBoolean("use_ambiguities_resolved", Boolean.FALSE);
+        sentenceDetectorEnabled = settings.getAsBoolean("sentence_detector", Boolean.TRUE);
+        ambiguitiesResolved = settings.getAsBoolean("ambiguities_resolved", Boolean.FALSE);
     }
 
     @Override
     public Tokenizer create(Reader reader) {
-        return new VietnameseTokenizer(reader, useSentenceDetector, useAmbiguitiesResolved);
+        return new VietnameseTokenizer(reader, sentenceDetectorEnabled, ambiguitiesResolved);
     }
 }
