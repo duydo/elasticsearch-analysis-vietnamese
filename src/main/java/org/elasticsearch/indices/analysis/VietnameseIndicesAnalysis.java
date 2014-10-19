@@ -1,6 +1,8 @@
 package org.elasticsearch.indices.analysis;
 
 import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.vi.VietnameseAnalyzer;
+import org.apache.lucene.analysis.vi.VietnameseTokenizer;
 import org.elasticsearch.common.component.AbstractComponent;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.lucene.Lucene;
@@ -9,13 +11,12 @@ import org.elasticsearch.index.analysis.AnalyzerScope;
 import org.elasticsearch.index.analysis.PreBuiltAnalyzerProviderFactory;
 import org.elasticsearch.index.analysis.PreBuiltTokenizerFactoryFactory;
 import org.elasticsearch.index.analysis.TokenizerFactory;
-import org.apache.lucene.analysis.vi.VietnameseAnalyzer;
-import org.apache.lucene.analysis.vi.VietnameseTokenizer;
 
 import java.io.Reader;
 
 /**
  * Registers indices level analysis components so, if not explicitly configured, will be shared among all indices.
+ *
  * @author duydo
  */
 public class VietnameseIndicesAnalysis extends AbstractComponent {
