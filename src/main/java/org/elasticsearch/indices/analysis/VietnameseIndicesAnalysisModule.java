@@ -5,7 +5,7 @@ import org.elasticsearch.common.inject.AbstractModule;
 /**
  * @author duydo
  */
-public class VietnameseIndicesModule extends AbstractModule {
+public class VietnameseIndicesAnalysisModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(VietnameseIndicesAnalysis.class).asEagerSingleton();

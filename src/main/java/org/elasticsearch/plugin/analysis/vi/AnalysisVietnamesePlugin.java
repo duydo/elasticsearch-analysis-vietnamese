@@ -4,7 +4,7 @@ import org.elasticsearch.common.collect.ImmutableList;
 import org.elasticsearch.common.inject.Module;
 import org.elasticsearch.index.analysis.AnalysisModule;
 import org.elasticsearch.index.analysis.VietnameseAnalysisBinderProcessor;
-import org.elasticsearch.indices.analysis.VietnameseIndicesModule;
+import org.elasticsearch.indices.analysis.VietnameseIndicesAnalysisModule;
 import org.elasticsearch.plugins.AbstractPlugin;
 
 import java.util.Collection;
@@ -25,10 +25,10 @@ public class AnalysisVietnamesePlugin extends AbstractPlugin {
 
     @Override
     public Collection<Class<? extends Module>> modules() {
-        return ImmutableList.<Class<? extends Module>>of(VietnameseIndicesModule.class);
+        return ImmutableList.<Class<? extends Module>>of(VietnameseIndicesAnalysisModule.class);
     }
 
-    public void onModule(AnalysisModule module){
+    public void onModule(AnalysisModule module) {
         module.addProcessor(new VietnameseAnalysisBinderProcessor());
     }
 }
