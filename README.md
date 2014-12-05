@@ -21,7 +21,8 @@ bin/plugin --install analysis-vietnamese
 
 |Vietnamese Analysis Plugin|Elasticsearch|
 |---|---|
-| master|1.3|
+| master|1.4|
+| 0.1.1|1.4|
 | 0.1|1.3|
 
 
