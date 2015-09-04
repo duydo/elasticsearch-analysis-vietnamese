@@ -22,7 +22,7 @@
     </scm>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <elasticsearch.version>1.6.0</elasticsearch.version>
+        <elasticsearch.version>1.7.0</elasticsearch.version>
         <lucene.version>4.10.4</lucene.version>
         <tests.jvms>1</tests.jvms>
         <tests.shuffle>true</tests.shuffle>
