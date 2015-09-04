@@ -78,25 +78,6 @@ public class VietnameseAnalyzer extends StopwordAnalyzerBase {
         super(stopWords);
     }
 
-    /**
-     * Builds an analyzer with the default stop words: {@link #getDefaultStopSet}.
-     */
-    @Deprecated
-    public VietnameseAnalyzer(Version matchVersion) {
-        this(matchVersion, DefaultSetHolder.DEFAULT_STOP_SET);
-    }
-
-    /**
-     * Builds an analyzer with the given stop words.
-     *
-     * @param matchVersion lucene compatibility version
-     * @param stopWords    a stopWord set
-     */
-    @Deprecated
-    public VietnameseAnalyzer(Version matchVersion, CharArraySet stopWords) {
-        super(matchVersion, stopWords);
-    }
-
     @Override
     protected TokenStreamComponents createComponents(String fieldName, Reader reader) {
         final Tokenizer tokenizer = new VietnameseTokenizer(reader);
