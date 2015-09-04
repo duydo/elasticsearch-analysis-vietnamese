@@ -21,7 +21,6 @@ import org.apache.lucene.analysis.core.StopFilter;
 import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.analysis.util.StopwordAnalyzerBase;
 import org.apache.lucene.util.Version;
-import org.elasticsearch.common.lucene.Lucene;
 
 import java.io.Reader;
 import java.util.Arrays;
@@ -75,9 +74,10 @@ public class VietnameseAnalyzer extends StopwordAnalyzerBase {
     /**
      * Builds an analyzer with the default stop words
      */
-    public VietnameseAnalyzer(CharArraySet stopwords) {
-        super(stopwords);
+    public VietnameseAnalyzer(CharArraySet stopWords) {
+        super(stopWords);
     }
+
     /**
      * Builds an analyzer with the default stop words: {@link #getDefaultStopSet}.
      */
