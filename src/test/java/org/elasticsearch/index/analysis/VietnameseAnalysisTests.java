@@ -23,7 +23,6 @@ import org.elasticsearch.Version;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.inject.Injector;
 import org.elasticsearch.common.inject.ModulesBuilder;
-import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.settings.SettingsModule;
 import org.elasticsearch.env.Environment;
@@ -31,21 +30,21 @@ import org.elasticsearch.env.EnvironmentModule;
 import org.elasticsearch.index.Index;
 import org.elasticsearch.index.IndexNameModule;
 import org.elasticsearch.index.settings.IndexSettingsModule;
-import org.elasticsearch.indices.analysis.IndicesAnalysisModule;
 import org.elasticsearch.indices.analysis.IndicesAnalysisService;
 import org.elasticsearch.plugin.analysis.vi.AnalysisVietnamesePlugin;
-import org.elasticsearch.test.ElasticsearchTestCase;
+import org.elasticsearch.test.ESTestCase;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.StringReader;
 
+import static org.elasticsearch.common.settings.Settings.settingsBuilder;
 import static org.hamcrest.Matchers.*;
 
 /**
  * @author duydo
  */
-public class VietnameseAnalysisTests extends ElasticsearchTestCase {
+public class VietnameseAnalysisTests extends ESTestCase {
     @Test
     public void testDefaultsVietnameseAnalysis() throws IOException {
         AnalysisService analysisService = createAnalysisService();
@@ -63,19 +62,18 @@ public class VietnameseAnalysisTests extends ElasticsearchTestCase {
         String source = "công nghệ thông tin Việt Nam";
         String[] exptected = new String[]{"công nghệ thông tin", "Việt Nam"};
 
-        Tokenizer tokenizer = tokenizerFactory.create(new StringReader(source));
+        Tokenizer tokenizer = tokenizerFactory.create();
+        tokenizer.setReader(new StringReader(source));
         assertSimpleTokenStreamOutput(tokenizer, exptected);
     }
 
     public AnalysisService createAnalysisService() {
-        Settings settings = ImmutableSettings.settingsBuilder()
-                .loadFromClasspath("org/elasticsearch/index/analysis/vi_analysis.json")
+        Settings settings = settingsBuilder().loadFromSource("org/elasticsearch/index/analysis/vi_analysis.json")
                 .put(IndexMetaData.SETTING_VERSION_CREATED, Version.CURRENT)
                 .build();
         Index index = new Index("test");
         Injector parentInjector = new ModulesBuilder().add(new SettingsModule(settings),
-                new EnvironmentModule(new Environment(settings)),
-                new IndicesAnalysisModule())
+                new EnvironmentModule(new Environment(settings)))
                 .createInjector();
         AnalysisModule analysisModule = new AnalysisModule(settings, parentInjector.getInstance(IndicesAnalysisService.class));
         new AnalysisVietnamesePlugin().onModule(analysisModule);

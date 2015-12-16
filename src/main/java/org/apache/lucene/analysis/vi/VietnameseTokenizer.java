@@ -58,12 +58,12 @@ public class VietnameseTokenizer extends Tokenizer {
     private boolean sentenceDetectorEnabled;
     private boolean ambiguitiesResolved;
 
-    public VietnameseTokenizer(Reader input) {
-        this(input, true, false);
+    public VietnameseTokenizer() {
+        this(true, false);
     }
 
-    public VietnameseTokenizer(Reader input, boolean sentenceDetectorEnabled, boolean ambiguitiesResolved) {
-        super(input);
+    public VietnameseTokenizer(boolean sentenceDetectorEnabled, boolean ambiguitiesResolved) {
+        super();
         this.sentenceDetectorEnabled = sentenceDetectorEnabled;
         this.ambiguitiesResolved = ambiguitiesResolved;
 

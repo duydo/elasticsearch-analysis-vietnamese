@@ -14,32 +14,36 @@
 
 package org.elasticsearch.plugin.analysis.vi;
 
-import org.elasticsearch.common.collect.ImmutableList;
+
+import com.google.common.collect.ImmutableList;
 import org.elasticsearch.common.inject.Module;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.analysis.AnalysisModule;
 import org.elasticsearch.index.analysis.VietnameseAnalysisBinderProcessor;
 import org.elasticsearch.indices.analysis.VietnameseIndicesAnalysisModule;
-import org.elasticsearch.plugins.AbstractPlugin;
+import org.elasticsearch.plugins.Plugin;
 
 import java.util.Collection;
+import java.util.Collections;
+
 
 /**
  * @author duydo
  */
-public class AnalysisVietnamesePlugin extends AbstractPlugin {
+public class AnalysisVietnamesePlugin extends Plugin {
     @Override
     public String name() {
-        return "analysis-vietnamese";
+        return "elasticsearch-analysis-vietnamese";
     }
 
     @Override
     public String description() {
-        return "Vietnamese Analysis plugin";
+        return "Elasticsearch Vietnamese Analysis Plugin";
     }
 
     @Override
-    public Collection<Class<? extends Module>> modules() {
-        return ImmutableList.<Class<? extends Module>>of(VietnameseIndicesAnalysisModule.class);
+    public Collection<Module> nodeModules() {
+        return Collections.<Module>singletonList(new VietnameseIndicesAnalysisModule());
     }
 
     public void onModule(AnalysisModule module) {
