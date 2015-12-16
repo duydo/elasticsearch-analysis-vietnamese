@@ -49,8 +49,8 @@ public class VietnameseIndicesAnalysis extends AbstractComponent {
                     }
 
                     @Override
-                    public Tokenizer create(Reader reader) {
-                        return new VietnameseTokenizer(reader);
+                    public Tokenizer create() {
+                        return new VietnameseTokenizer();
                     }
                 })
         );

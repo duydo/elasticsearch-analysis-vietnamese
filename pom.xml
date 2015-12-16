@@ -3,10 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.elasticsearch</groupId>
     <artifactId>elasticsearch-analysis-vietnamese</artifactId>
-    <version>0.1.7</version>
+    <version>0.2</version>
     <packaging>jar</packaging>
-    <name>Vietnamese Analysis for Elasticsearch</name>
+    <name>elasticsearch-analysis-vietnamese</name>
     <url>https://github.com/duydo/elasticsearch-analysis-vietnamese/</url>
+    <description>Elasticsearch Vietnamese Analysis Plugin</description>
     <inceptionYear>2014</inceptionYear>
     <licenses>
         <license>
@@ -22,8 +23,9 @@
     </scm>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <elasticsearch.version>1.7.0</elasticsearch.version>
-        <lucene.version>4.10.4</lucene.version>
+        <project.build.java.version>1.7</project.build.java.version>
+        <elasticsearch.version>2.0.0</elasticsearch.version>
+        <lucene.version>5.2.1</lucene.version>
         <tests.jvms>1</tests.jvms>
         <tests.shuffle>true</tests.shuffle>
         <tests.output>onerror</tests.output>

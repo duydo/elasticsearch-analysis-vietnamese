@@ -20,12 +20,9 @@ package org.elasticsearch.index.analysis;
 
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.plugins.PluginsService;
-import org.elasticsearch.test.ElasticsearchIntegrationTest;
+import org.elasticsearch.test.ESIntegTestCase;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -35,15 +32,8 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 
-@ElasticsearchIntegrationTest.ClusterScope(scope = ElasticsearchIntegrationTest.Scope.SUITE)
-public class VietnameseAnalysisIntegrationTest extends ElasticsearchIntegrationTest {
-    @Override
-    protected Settings nodeSettings(int nodeOrdinal) {
-        return ImmutableSettings.builder()
-                .put(super.nodeSettings(nodeOrdinal))
-                .put("plugins." + PluginsService.LOAD_PLUGIN_FROM_CLASSPATH, true)
-                .build();
-    }
+@ESIntegTestCase.ClusterScope(scope = ESIntegTestCase.Scope.SUITE)
+public class VietnameseAnalysisIntegrationTest extends ESIntegTestCase {
 
     @Test
     public void testVietnameseAnalyzer() throws ExecutionException, InterruptedException {
