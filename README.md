@@ -6,14 +6,14 @@ Vietnamese Analysis plugin integrates Vietnamese language analysis into Elastics
 In order to install the plugin, simply run: 
 
 ```sh
-bin/plugin --url https://dl.dropboxusercontent.com/u/1598491/elasticsearch-analysis-vietnamese-0.2.1zip --install analysis-vietnamese
+bin/plugin --url https://dl.dropboxusercontent.com/u/1598491/elasticsearch-analysis-vietnamese-0.2.1.zip --install analysis-vietnamese
 ```
 
 Or to build from source, you need to build it with Maven:
 
 ```bash
 mvn clean package
-bin/plugin install file:target/releases/elasticsearch-analysis-vietnamese-0.2.1zip
+bin/plugin install file:target/releases/elasticsearch-analysis-vietnamese-0.2.1.zip
 ```
 
 *Notes*: To build the plugin you need to clone and build the [vn-nlp-libararies](https://github.com/duydo/vn-nlp-libraries). The plugin uses  [Lê Hồng Phương](http://mim.hus.vnu.edu.vn/phuonglh/) vnTokenizer library. Thanks thầy Lê Hồng Phương for great contribution.
