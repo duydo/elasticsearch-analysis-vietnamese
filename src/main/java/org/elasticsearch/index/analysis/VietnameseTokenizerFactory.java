@@ -34,7 +34,7 @@ public class VietnameseTokenizerFactory extends AbstractTokenizerFactory {
     @Inject
     public VietnameseTokenizerFactory(Index index, IndexSettingsService indexSettingsService, @Assisted String name, @Assisted Settings settings) {
         super(index, indexSettingsService.getSettings(), name, settings);
-        sentenceDetectorEnabled = settings.getAsBoolean("sentence_detector", Boolean.TRUE);
+        sentenceDetectorEnabled = settings.getAsBoolean("sentence_detector", Boolean.FALSE);
         ambiguitiesResolved = settings.getAsBoolean("ambiguities_resolved", Boolean.FALSE);
     }
 

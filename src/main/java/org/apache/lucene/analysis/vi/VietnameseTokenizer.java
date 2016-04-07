@@ -28,6 +28,8 @@ import vn.hus.nlp.tokenizer.tokens.TaggedWord;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -70,8 +72,12 @@ public class VietnameseTokenizer extends Tokenizer {
         if (this.sentenceDetectorEnabled) {
             sentenceDetector = SentenceDetectorFactory.create(IConstants.LANG_VIETNAMESE);
         }
-
-        tokenizer = TokenizerProvider.getInstance().getTokenizer();
+        tokenizer = AccessController.doPrivileged(new PrivilegedAction<vn.hus.nlp.tokenizer.Tokenizer>() {
+            @Override
+            public vn.hus.nlp.tokenizer.Tokenizer run() {
+                return TokenizerProvider.getInstance().getTokenizer();
+            }
+        });
         tokenizer.setAmbiguitiesResolved(ambiguitiesResolved);
     }
 
