@@ -45,7 +45,7 @@ public class VietnameseTokenizer extends Tokenizer {
     private Iterator<TaggedWord> taggedWords;
 
     private int offset = 0;
-    private int finalOffset = 0;
+    //    private int finalOffset = 0;
     private int skippedPositions;
 
 
@@ -101,19 +101,16 @@ public class VietnameseTokenizer extends Tokenizer {
         clearAttributes();
         while (taggedWords.hasNext()) {
             final TaggedWord word = taggedWords.next();
-            final int length = word.getText().length();
-            final int currentOffset = offset;
-            offset += length;
             if (accept(word)) {
+                final int length = word.getText().length();
                 posIncrAtt.setPositionIncrement(skippedPositions + 1);
                 termAtt.copyBuffer(word.getText().trim().toCharArray(), 0, length);
-                offsetAtt.setOffset(correctOffset(currentOffset), finalOffset = correctOffset(offset));
+                offsetAtt.setOffset(correctOffset(offset), offset = correctOffset(offset + length));
                 typeAtt.setType(word.getRule().getName());
                 return true;
-            } else {
-                // When we skip non-word characters, we still increment the position increment
-                skippedPositions++;
             }
+            ++skippedPositions;
+
         }
         return false;
     }
@@ -133,7 +130,7 @@ public class VietnameseTokenizer extends Tokenizer {
     public final void end() throws IOException {
         super.end();
         // set final offset
-        offsetAtt.setOffset(finalOffset, finalOffset);
+        offsetAtt.setOffset(offset, offset);
         // adjust any skipped tokens
         posIncrAtt.setPositionIncrement(posIncrAtt.getPositionIncrement() + skippedPositions);
     }
@@ -142,7 +139,6 @@ public class VietnameseTokenizer extends Tokenizer {
     public void reset() throws IOException {
         super.reset();
         offset = 0;
-        finalOffset = 0;
         skippedPositions = 0;
         tokenize(input);
     }
