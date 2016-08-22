@@ -45,7 +45,6 @@ public class VietnameseTokenizer extends Tokenizer {
     private Iterator<TaggedWord> taggedWords;
 
     private int offset = 0;
-    //    private int finalOffset = 0;
     private int skippedPositions;
 
 
@@ -102,15 +101,15 @@ public class VietnameseTokenizer extends Tokenizer {
         while (taggedWords.hasNext()) {
             final TaggedWord word = taggedWords.next();
             if (accept(word)) {
-                final int length = word.getText().length();
-                posIncrAtt.setPositionIncrement(skippedPositions + 1);
-                termAtt.copyBuffer(word.getText().trim().toCharArray(), 0, length);
-                offsetAtt.setOffset(correctOffset(offset), offset = correctOffset(offset + length));
+                final char[] chars = word.getText().trim().toCharArray();
+                termAtt.copyBuffer(chars, 0, chars.length);
                 typeAtt.setType(word.getRule().getName());
+                posIncrAtt.setPositionIncrement(skippedPositions + 1);
+                offsetAtt.setOffset(correctOffset(offset), offset = correctOffset(offset + termAtt.length()));
+                offset++;
                 return true;
             }
             ++skippedPositions;
-
         }
         return false;
     }
@@ -129,9 +128,7 @@ public class VietnameseTokenizer extends Tokenizer {
     @Override
     public final void end() throws IOException {
         super.end();
-        // set final offset
         offsetAtt.setOffset(offset, offset);
-        // adjust any skipped tokens
         posIncrAtt.setPositionIncrement(posIncrAtt.getPositionIncrement() + skippedPositions);
     }
 
