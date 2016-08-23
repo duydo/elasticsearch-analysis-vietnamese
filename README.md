@@ -3,10 +3,10 @@ Vietnamese Analysis Plugin for Elasticsearch
 
 Vietnamese Analysis plugin integrates Vietnamese language analysis into Elasticsearch.
 
-In order to install the plugin, simply run:
+In order to install the plugin, choose a version in [releases](https://github.com/duydo/elasticsearch-analysis-vietnamese/releases) page then run:
 
 ```sh
-bin/plugin --url https://dl.dropboxusercontent.com/u/1598491/elasticsearch-analysis-vietnamese-0.2.2.zip --install analysis-vietnamese
+bin/plugin install link-to-binary-version
 ```
 
 Or to build from source, you need to build it with Maven:
@@ -20,7 +20,13 @@ bin/plugin install file:target/releases/elasticsearch-analysis-vietnamese-0.2.2.
 
 |Vietnamese Analysis Plugin|Elasticsearch|
 |---|---|
-| master|2.2.0|
+| master|2.3.5|
+| 2.3.5|2.3.5|
+| 2.3.4|2.3.4|
+| 2.3.3|2.3.3|
+| 2.3.2|2.3.2|
+| 2.3.1|2.3.1|
+| 2.3.0|2.3.0|
 | 0.2.2|2.2.0|
 | 0.2.1.1|2.1.1|
 | 0.2.1|2.1.0|

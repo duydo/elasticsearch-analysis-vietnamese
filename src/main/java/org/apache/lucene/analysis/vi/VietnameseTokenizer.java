@@ -101,15 +101,15 @@ public class VietnameseTokenizer extends Tokenizer {
         while (taggedWords.hasNext()) {
             final TaggedWord word = taggedWords.next();
             if (accept(word)) {
-                final char[] chars = word.getText().trim().toCharArray();
-                termAtt.copyBuffer(chars, 0, chars.length);
-                typeAtt.setType(word.getRule().getName());
                 posIncrAtt.setPositionIncrement(skippedPositions + 1);
-                offsetAtt.setOffset(correctOffset(offset), offset = correctOffset(offset + termAtt.length()));
+                typeAtt.setType(word.getRule().getName());
+                final int length = word.getText().length();
+                termAtt.copyBuffer(word.getText().toCharArray(), 0, length);
+                offsetAtt.setOffset(correctOffset(offset), offset = correctOffset(offset + length));
                 offset++;
                 return true;
             }
-            ++skippedPositions;
+            skippedPositions++;
         }
         return false;
     }
@@ -128,7 +128,8 @@ public class VietnameseTokenizer extends Tokenizer {
     @Override
     public final void end() throws IOException {
         super.end();
-        offsetAtt.setOffset(offset, offset);
+        final int finalOffset = correctOffset(offset);
+        offsetAtt.setOffset(finalOffset, finalOffset);
         posIncrAtt.setPositionIncrement(posIncrAtt.getPositionIncrement() + skippedPositions);
     }
 
