@@ -13,14 +13,15 @@ Or to build from source, you need to build it with Maven:
 
 ```bash
 mvn clean package
-bin/plugin install file:target/releases/elasticsearch-analysis-vietnamese-0.2.2.zip
+bin/plugin install file:target/releases/elasticsearch-analysis-vietnamese-2.4.0.zip
 ```
 
 *Notes*: To build the plugin you need to clone and build the [vn-nlp-libararies](https://github.com/duydo/vn-nlp-libraries). The plugin uses  [Lê Hồng Phương](http://mim.hus.vnu.edu.vn/phuonglh/) vnTokenizer library. Thanks thầy Lê Hồng Phương for great contribution.
 
 |Vietnamese Analysis Plugin|Elasticsearch|
 |---|---|
-| master|2.3.5|
+| master|2.4.0|
+| 2.4.0|2.4.0|
 | 2.3.5|2.3.5|
 | 2.3.4|2.3.4|
 | 2.3.3|2.3.3|
@@ -40,7 +41,7 @@ bin/plugin install file:target/releases/elasticsearch-analysis-vietnamese-0.2.2.
 
 ## User guide
 
-The plugin includes the `vi_analyzer` analyzer and `vi_tokenizer` tokenizer.
+The plugin provides the `vi_analyzer` analyzer and `vi_tokenizer` tokenizer.
 
 The `vi_analyzer` is built using the `vi_tokenizer` tokenizer, the `lowercase` and `stop` filter.
 
