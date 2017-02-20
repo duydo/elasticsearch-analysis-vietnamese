@@ -16,12 +16,9 @@ package org.elasticsearch.index.analysis;
 
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.vi.VietnameseTokenizer;
-import org.elasticsearch.common.inject.Inject;
-import org.elasticsearch.common.inject.assistedinject.Assisted;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.index.Index;
-import org.elasticsearch.index.settings.IndexSettingsService;
-
+import org.elasticsearch.env.Environment;
+import org.elasticsearch.index.IndexSettings;
 
 /**
  * @author duydo
@@ -31,9 +28,8 @@ public class VietnameseTokenizerFactory extends AbstractTokenizerFactory {
     private final boolean sentenceDetectorEnabled;
     private final boolean ambiguitiesResolved;
 
-    @Inject
-    public VietnameseTokenizerFactory(Index index, IndexSettingsService indexSettingsService, @Assisted String name, @Assisted Settings settings) {
-        super(index, indexSettingsService.getSettings(), name, settings);
+    public VietnameseTokenizerFactory(IndexSettings indexSettings, Environment environment, String name, Settings settings) {
+        super(indexSettings, name, settings);
         sentenceDetectorEnabled = settings.getAsBoolean("sentence_detector", Boolean.FALSE);
         ambiguitiesResolved = settings.getAsBoolean("ambiguities_resolved", Boolean.FALSE);
     }

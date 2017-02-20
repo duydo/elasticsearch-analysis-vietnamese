@@ -74,10 +74,11 @@ public class VietnameseTokenizer extends Tokenizer {
         tokenizer = AccessController.doPrivileged(new PrivilegedAction<vn.hus.nlp.tokenizer.Tokenizer>() {
             @Override
             public vn.hus.nlp.tokenizer.Tokenizer run() {
-                return TokenizerProvider.getInstance().getTokenizer();
+                vn.hus.nlp.tokenizer.Tokenizer vnTokenizer = TokenizerProvider.getInstance().getTokenizer();
+                vnTokenizer.setAmbiguitiesResolved(ambiguitiesResolved);
+                return vnTokenizer;
             }
         });
-        tokenizer.setAmbiguitiesResolved(ambiguitiesResolved);
     }
 
     private void tokenize(Reader input) throws IOException {

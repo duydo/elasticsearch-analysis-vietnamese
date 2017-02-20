@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.elasticsearch</groupId>
     <artifactId>elasticsearch-analysis-vietnamese</artifactId>
-    <version>2.4.1</version>
+    <version>5.2.1</version>
     <packaging>jar</packaging>
     <name>elasticsearch-analysis-vietnamese</name>
     <url>https://github.com/duydo/elasticsearch-analysis-vietnamese/</url>
@@ -16,6 +16,13 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+    <developers>
+        <developer>
+            <id>duydo</id>
+            <name>Duy Do</name>
+            <url>http://duydo.me</url>
+        </developer>
+    </developers>
     <scm>
         <connection>scm:git:git@github.com:duydo/elasticsearch-analysis-vietnamese.git</connection>
         <developerConnection>scm:git:git@github.com:duydo/elasticsearch-analysis-vietnamese.git</developerConnection>
@@ -23,45 +30,18 @@
     </scm>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.build.java.version>1.7</project.build.java.version>
-        <elasticsearch.version>2.4.1</elasticsearch.version>
-        <lucene.version>5.5.2</lucene.version>
-        <tests.jvms>1</tests.jvms>
-        <tests.shuffle>true</tests.shuffle>
-        <tests.output>onerror</tests.output>
-        <es.logger.level>INFO</es.logger.level>
+        <project.build.java.version>1.8</project.build.java.version>
+        <elasticsearch.version>5.2.1</elasticsearch.version>
+        <lucene.version>6.4.1</lucene.version>
+        <jna.version>4.1.0</jna.version>
+        <log4j.version>2.7</log4j.version>
     </properties>
     <dependencies>
         <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-test-framework</artifactId>
-            <version>${lucene.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-all</artifactId>
-            <version>1.3</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.carrotsearch.randomizedtesting</groupId>
-            <artifactId>randomizedtesting-runner</artifactId>
-            <version>2.1.14</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
             <version>${elasticsearch.version}</version>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch</artifactId>
-            <version>${elasticsearch.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -79,15 +59,28 @@
             <version>4.1.1</version>
         </dependency>
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
-            <scope>runtime</scope>
+            <groupId>org.elasticsearch.test</groupId>
+            <artifactId>framework</artifactId>
+            <version>${elasticsearch.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch</artifactId>
-            <version>${elasticsearch.version}</version>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>${jna.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
@@ -106,10 +99,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>3.3</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -127,7 +120,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.3</version>
+                <version>2.6</version>
                 <configuration>
                     <appendAssemblyId>false</appendAssemblyId>
                     <outputDirectory>${project.build.directory}/releases/</outputDirectory>
@@ -144,61 +137,35 @@
                     </execution>
                 </executions>
             </plugin>
-
+            <plugin>
+                <!-- we skip surefire to work with randomized testing above -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.9</version>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>com.carrotsearch.randomizedtesting</groupId>
                 <artifactId>junit4-maven-plugin</artifactId>
-                <version>2.0.12</version>
+                <version>2.3.3</version>
+                <configuration>
+                    <assertions enableSystemAssertions="false">
+                        <enable/>
+                    </assertions>
+
+                    <listeners>
+                        <report-text/>
+                    </listeners>
+                </configuration>
                 <executions>
                     <execution>
-                        <id>tests</id>
+                        <id>unit-tests</id>
                         <phase>test</phase>
                         <goals>
                             <goal>junit4</goal>
                         </goals>
-                        <configuration>
-                            <heartbeat>20</heartbeat>
-                            <jvmOutputAction>pipe,warn</jvmOutputAction>
-                            <leaveTemporary>true</leaveTemporary>
-                            <listeners>
-                                <report-ant-xml mavenExtensions="true"
-                                                dir="${project.build.directory}/surefire-reports"/>
-                                <report-text
-                                        showThrowable="true"
-                                        showStackTraces="true"
-                                        showOutput="${tests.output}"
-                                        showStatusOk="false"
-                                        showStatusError="true"
-                                        showStatusFailure="true"
-                                        showStatusIgnored="true"
-                                        showSuiteSummary="true"
-                                        timestamps="false"/>
-                                <report-execution-times file="${basedir}/.local-execution-hints.log"/>
-                            </listeners>
-                            <assertions>
-                                <enable/>
-                            </assertions>
-                            <parallelism>${tests.jvms}</parallelism>
-                            <balancers>
-                                <execution-times>
-                                    <fileset dir="${basedir}" includes=".local-execution-hints.log"/>
-                                </execution-times>
-                            </balancers>
-                            <includes>
-                                <include>**/*Tests.class</include>
-                                <include>**/*Test.class</include>
-                            </includes>
-                            <excludes>
-                                <exclude>**/Abstract*.class</exclude>
-                                <exclude>**/*StressTest.class</exclude>
-                            </excludes>
-                            <jvmArgs>
-                                <param>-Xmx512m</param>
-                                <param>-XX:MaxDirectMemorySize=512m</param>
-                                <param>-Des.logger.prefix=</param>
-                            </jvmArgs>
-                            <shuffleOnSlave>${tests.shuffle}</shuffleOnSlave>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
