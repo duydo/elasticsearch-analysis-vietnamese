@@ -1,41 +1,49 @@
-/*
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.elasticsearch.index.analysis;
 
-/**
- * @author duydo
- */
-
+import org.elasticsearch.action.admin.cluster.node.info.NodeInfo;
+import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.plugin.analysis.vi.AnalysisVietnamesePlugin;
+import org.elasticsearch.plugins.Plugin;
+import org.elasticsearch.plugins.PluginInfo;
 import org.elasticsearch.test.ESIntegTestCase;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
-@ESIntegTestCase.ClusterScope(scope = ESIntegTestCase.Scope.SUITE)
+/**
+ * Created by duydo on 2/20/17.
+ */
 public class VietnameseAnalysisIntegrationTest extends ESIntegTestCase {
+    @Override
+    protected Collection<Class<? extends Plugin>> nodePlugins() {
+        return Collections.singleton(AnalysisVietnamesePlugin.class);
+    }
 
-    @Test
+    public void testPluginIsLoaded() throws Exception {
+        NodesInfoResponse response = client().admin().cluster().prepareNodesInfo().setPlugins(true).get();
+        for (NodeInfo nodeInfo : response.getNodes()) {
+            boolean pluginFound = false;
+            for (PluginInfo pluginInfo : nodeInfo.getPlugins().getPluginInfos()) {
+                if (pluginInfo.getName().equals(AnalysisVietnamesePlugin.class.getName())) {
+                    pluginFound = true;
+                    break;
+                }
+            }
+            assertThat(pluginFound, is(true));
+        }
+    }
+
     public void testVietnameseAnalyzer() throws ExecutionException, InterruptedException {
         AnalyzeResponse response = client().admin().indices()
                 .prepareAnalyze("công nghệ thông tin Việt Nam").setAnalyzer("vi_analyzer")
@@ -48,7 +56,6 @@ public class VietnameseAnalysisIntegrationTest extends ESIntegTestCase {
         }
     }
 
-    @Test
     public void testVietnameseAnalyzerInMapping() throws ExecutionException, InterruptedException, IOException {
         createIndex("test");
         ensureGreen("test");
@@ -56,7 +63,7 @@ public class VietnameseAnalysisIntegrationTest extends ESIntegTestCase {
                 .startObject("type")
                 .startObject("properties")
                 .startObject("foo")
-                .field("type", "string")
+                .field("type", "text")
                 .field("analyzer", "vi_analyzer")
                 .endObject()
                 .endObject()
