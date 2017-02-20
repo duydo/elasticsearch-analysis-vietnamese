@@ -3,24 +3,63 @@ Vietnamese Analysis Plugin for Elasticsearch
 
 Vietnamese Analysis plugin integrates Vietnamese language analysis into Elasticsearch.
 
+The plugin provides the `vi_analyzer` analyzer and `vi_tokenizer` tokenizer. The `vi_analyzer` is composed of the `vi_tokenizer` tokenizer, the `lowercase` and `stop` filter.
+
+
+## Installation on Elasticsearch 5.x
+
 In order to install the plugin, choose a version in [releases](https://github.com/duydo/elasticsearch-analysis-vietnamese/releases) page then run:
 
 ```sh
-bin/plugin install link/to/binary/version
+bin/elasticsearch-plugin install link/to/binary/version
 ```
 
 Or to build from source, you need to build it with Maven:
 
 ```bash
 mvn clean package
-bin/plugin install file:target/releases/elasticsearch-analysis-vietnamese-2.4.1.zip
+bin/elasticsearch-plugin install file:target/releases/elasticsearch-analysis-vietnamese-5.2.1.zip
 ```
 
-*Notes*: To build the plugin you need to clone and build the [vn-nlp-libararies](https://github.com/duydo/vn-nlp-libraries). The plugin uses  [Lê Hồng Phương](http://mim.hus.vnu.edu.vn/phuonglh/) vnTokenizer library. Thanks thầy Lê Hồng Phương for great contribution.
+*In order to build the plugin you need to build the [vn-nlp-libararies](https://github.com/duydo/vn-nlp-libraries) first. Thanks to thầy [Lê Hồng Phương](http://mim.hus.vnu.edu.vn/phuonglh/) for his VnTokenizer library.*
+
+
+
+## Example
+```sh
+curl "http://localhost:9200/_analyze?pretty" -d'
+{
+  "analyzer": "vi_analyzer",
+  "text": "Công nghệ thông tin Việt Nam"
+}'
+```
+
+Result
+```json
+{
+  "tokens" : [
+    {
+      "token" : "công nghệ thông tin",
+      "start_offset" : 0,
+      "end_offset" : 19,
+      "type" : "word",
+      "position" : 0
+    },
+    {
+      "token" : "việt nam",
+      "start_offset" : 20,
+      "end_offset" : 28,
+      "type" : "name2",
+      "position" : 1
+    }
+  ]
+}
+```
 
 |Vietnamese Analysis Plugin|Elasticsearch|
 |---|---|
-| master|2.4.1|
+| master|5.2.1|
+| 5.2.1|5.2.1|
 | 2.4.1|2.4.1|
 | 2.4.0|2.4.0|
 | 2.3.5|2.3.5|
@@ -38,15 +77,6 @@ bin/plugin install file:target/releases/elasticsearch-analysis-vietnamese-2.4.1.
 | 0.1.5|1.5+|
 | 0.1.1|1.4+|
 | 0.1|1.3|
-
-
-## User guide
-
-The plugin provides the `vi_analyzer` analyzer and `vi_tokenizer` tokenizer.
-
-The `vi_analyzer` is built using the `vi_tokenizer` tokenizer, the `lowercase` and `stop` filter.
-
- The analyzer analyzes `"công nghệ thông tin Việt Nam"` into `"công nghệ thông tin"` and `"việt nam"` tokens.
 
 License
 -------
