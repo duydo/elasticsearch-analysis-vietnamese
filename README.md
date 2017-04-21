@@ -14,7 +14,7 @@ In order to install the plugin, choose a version in [releases](https://github.co
 bin/elasticsearch-plugin install link/to/binary/version
 ```
 ## Build from Source
-Check [this post](http://duydo.me/how-to-build-elasticsearch-vietnamese-analysis-plugin/)
+Check this post: [How to build Elasticsearch Vietnamese Analysis Plugin](http://duydo.me/how-to-build-elasticsearch-vietnamese-analysis-plugin/)
 
 ## Compatible Versions
 | Vietnamese Analysis Plugin | Elasticsearch |
@@ -45,7 +45,6 @@ Check [this post](http://duydo.me/how-to-build-elasticsearch-vietnamese-analysis
 - [JetBrains](https://www.jetbrains.com) has provided a free license for their great tool: [IntelliJ IDEA](https://www.jetbrains.com/idea/)
 
 ## License
--------
 
     This software is licensed under the Apache 2 license, quoted below.
 
