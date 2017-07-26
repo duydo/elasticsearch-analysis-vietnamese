@@ -5,6 +5,7 @@ import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.plugin.analysis.vi.AnalysisVietnamesePlugin;
 import org.elasticsearch.plugins.Plugin;
@@ -48,9 +49,9 @@ public class VietnameseAnalysisIntegrationTest extends ESIntegTestCase {
         AnalyzeResponse response = client().admin().indices()
                 .prepareAnalyze("công nghệ thông tin Việt Nam").setAnalyzer("vi_analyzer")
                 .execute().get();
-        String[] expected = {"công nghệ thông tin", "việt nam"};
+        String[] expected = {"công nghệ thông tin", "việt", "nam"};
         assertThat(response, notNullValue());
-        assertThat(response.getTokens().size(), is(2));
+        assertThat(response.getTokens().size(), is(3));
         for (int i = 0; i < expected.length; i++) {
             assertThat(response.getTokens().get(i).getTerm(), is(expected[i]));
         }
@@ -70,11 +71,11 @@ public class VietnameseAnalysisIntegrationTest extends ESIntegTestCase {
                 .endObject()
                 .endObject();
         client().admin().indices().preparePutMapping("test").setType("type").setSource(mapping).get();
-        index("test", "type", "1", "foo", "công nghệ thông tin Việt Nam");
+        final XContentBuilder source = jsonBuilder().startObject().field("foo", "công nghệ thông tin Việt Nam").endObject();
+        index("test", "type", "1", source);
         refresh();
         SearchResponse response = client().prepareSearch("test").setQuery(
-                QueryBuilders.matchQuery("foo", "Việt Nam")
-        ).execute().actionGet();
+                QueryBuilders.matchQuery("foo", "công nghệ thông tin")).execute().actionGet();
         assertThat(response.getHits().getTotalHits(), is(1L));
     }
 }

@@ -25,17 +25,12 @@ import org.elasticsearch.index.IndexSettings;
  */
 public class VietnameseTokenizerFactory extends AbstractTokenizerFactory {
 
-    private final boolean sentenceDetectorEnabled;
-    private final boolean ambiguitiesResolved;
-
     public VietnameseTokenizerFactory(IndexSettings indexSettings, Environment environment, String name, Settings settings) {
         super(indexSettings, name, settings);
-        sentenceDetectorEnabled = settings.getAsBoolean("sentence_detector", Boolean.FALSE);
-        ambiguitiesResolved = settings.getAsBoolean("ambiguities_resolved", Boolean.FALSE);
     }
 
     @Override
     public Tokenizer create() {
-        return new VietnameseTokenizer(sentenceDetectorEnabled, ambiguitiesResolved);
+        return new VietnameseTokenizer();
     }
 }
