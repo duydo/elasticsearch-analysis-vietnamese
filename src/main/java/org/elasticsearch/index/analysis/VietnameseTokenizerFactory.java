@@ -20,17 +20,22 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.env.Environment;
 import org.elasticsearch.index.IndexSettings;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
 /**
  * @author duydo
  */
 public class VietnameseTokenizerFactory extends AbstractTokenizerFactory {
+    private final me.duydo.vi.Tokenizer tokenizer;
 
     public VietnameseTokenizerFactory(IndexSettings indexSettings, Environment environment, String name, Settings settings) {
         super(indexSettings, name, settings);
+        tokenizer = AccessController.doPrivileged((PrivilegedAction<me.duydo.vi.Tokenizer>) () -> new me.duydo.vi.Tokenizer());
     }
 
     @Override
     public Tokenizer create() {
-        return new VietnameseTokenizer();
+        return new VietnameseTokenizer(tokenizer);
     }
 }

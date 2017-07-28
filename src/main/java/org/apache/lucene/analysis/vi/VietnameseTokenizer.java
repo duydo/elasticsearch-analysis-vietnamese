@@ -20,16 +20,12 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
-import vn.hus.nlp.tokenizer.TokenizerProvider;
 import vn.hus.nlp.tokenizer.tokens.TaggedWord;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.io.StringReader;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 
 /**
@@ -39,46 +35,51 @@ import java.util.List;
  */
 public class VietnameseTokenizer extends Tokenizer {
 
-    private Iterator<TaggedWord> taggedWords;
-
+    private List<TaggedWord> pending = new CopyOnWriteArrayList<>();
     private int offset = 0;
+    private int pos = 0;
 
     private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
     private final OffsetAttribute offsetAtt = addAttribute(OffsetAttribute.class);
     private final TypeAttribute typeAtt = addAttribute(TypeAttribute.class);
     private final PositionIncrementAttribute posIncrAtt = addAttribute(PositionIncrementAttribute.class);
 
-    private vn.hus.nlp.tokenizer.Tokenizer tokenizer;
+    private final me.duydo.vi.Tokenizer tokenizer;
     private String inputText;
 
-
-    public VietnameseTokenizer() {
+    public VietnameseTokenizer(me.duydo.vi.Tokenizer tokenizer) {
         super();
-        tokenizer = AccessController.doPrivileged(
-                (PrivilegedAction<vn.hus.nlp.tokenizer.Tokenizer>) () ->
-                        TokenizerProvider.getInstance().getTokenizer()
-        );
+        this.tokenizer = tokenizer;
     }
 
-    private void tokenize(Reader input) throws IOException {
-        this.inputText = IOUtils.toString(input);
-        tokenizer.tokenize(new StringReader(this.inputText));
-        taggedWords = tokenizer.getResult().iterator();
+    private void tokenize() throws IOException {
+        inputText = IOUtils.toString(input);
+        final List<TaggedWord> result = tokenizer.tokenize(new StringReader(inputText));
+        if (result != null) {
+            pending.addAll(result);
+        }
     }
 
     @Override
     public final boolean incrementToken() throws IOException {
+        while (pending.size() == 0) {
+            tokenize();
+            if (pending.size() == 0) {
+                return false;
+            }
+        }
         clearAttributes();
-        while (taggedWords.hasNext()) {
-            final TaggedWord word = taggedWords.next();
+
+        for (int i = pos; i < pending.size(); i++) {
+            pos++;
+            final TaggedWord word = pending.get(i);
             if (accept(word)) {
                 posIncrAtt.setPositionIncrement(1);
                 final int length = word.getText().length();
                 typeAtt.setType(String.format("<%s>", word.getRule().getName().toUpperCase()));
                 termAtt.copyBuffer(word.getText().toCharArray(), 0, length);
-                final int start = inputText.indexOf(word.getText(), offset);
-                offsetAtt.setOffset(correctOffset(start), correctOffset(start + length));
-                offset = offsetAtt.endOffset();
+                final int start = inputText.indexOf(word.getText(), i);
+                offsetAtt.setOffset(correctOffset(start), offset = correctOffset(start + length));
                 return true;
             }
         }
@@ -106,7 +107,8 @@ public class VietnameseTokenizer extends Tokenizer {
     @Override
     public void reset() throws IOException {
         super.reset();
+        pos = 0;
         offset = 0;
-        tokenize(input);
+        pending.clear();
     }
 }
