@@ -10,7 +10,6 @@ import org.elasticsearch.plugin.analysis.vi.AnalysisVietnamesePlugin;
 import org.elasticsearch.plugins.Plugin;
 import org.elasticsearch.plugins.PluginInfo;
 import org.elasticsearch.test.ESIntegTestCase;
-import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Collection;

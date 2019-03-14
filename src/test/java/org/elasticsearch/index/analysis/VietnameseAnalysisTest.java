@@ -74,7 +74,7 @@ public class VietnameseAnalysisTest extends ESTestCase {
     public TestAnalysis createTestAnalysis() throws IOException {
         String json = "/org/elasticsearch/index/analysis/vi_analysis.json";
         Settings settings = Settings.builder()
-                .loadFromStream(json, VietnameseAnalysisTest.class.getResourceAsStream(json))
+                .loadFromStream(json, VietnameseAnalysisTest.class.getResourceAsStream(json), true)
                 .put(IndexMetaData.SETTING_VERSION_CREATED, Version.CURRENT)
                 .build();
         Settings nodeSettings = Settings.builder().put(Environment.PATH_HOME_SETTING.getKey(), createTempDir()).build();
