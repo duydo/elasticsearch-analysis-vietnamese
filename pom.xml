@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.elasticsearch</groupId>
     <artifactId>elasticsearch-analysis-vietnamese</artifactId>
-    <version>5.3.2</version>
+    <version>6.5.3</version>
     <packaging>jar</packaging>
     <name>elasticsearch-analysis-vietnamese</name>
     <url>https://github.com/duydo/elasticsearch-analysis-vietnamese/</url>
@@ -31,9 +31,11 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.java.version>1.8</project.build.java.version>
-        <elasticsearch.version>5.3.2</elasticsearch.version>
-        <lucene.version>6.5.1</lucene.version>
+        <elasticsearch.version>6.5.3</elasticsearch.version>
+        <!--
+        <lucene.version>6.6.1</lucene.version>
         <jna.version>4.1.0</jna.version>
+        -->
         <log4j.version>2.7</log4j.version>
     </properties>
     <dependencies>
@@ -64,6 +66,14 @@
             <version>${elasticsearch.version}</version>
             <scope>test</scope>
         </dependency>
+        <!--
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>${jna.version}</version>
+            <scope>test</scope>
+        </dependency>
+        -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
@@ -75,6 +85,26 @@
             <artifactId>log4j-core</artifactId>
             <version>${log4j.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.2.11</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-core</artifactId>
+            <version>2.2.11</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>2.2.11</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+            <version>1.1.1</version>
         </dependency>
     </dependencies>
     <build>
