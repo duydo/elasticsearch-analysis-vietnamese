@@ -75,6 +75,6 @@ public class VietnameseAnalysisIntegrationTest extends ESIntegTestCase {
         refresh();
         SearchResponse response = client().prepareSearch("test").setQuery(
                 QueryBuilders.matchQuery("foo", "công nghệ thông tin")).execute().actionGet();
-        assertThat(response.getHits().getTotalHits(), is(1L));
+        assertThat(response.getHits().getTotalHits().toString(), is("1 hits"));
     }
 }
