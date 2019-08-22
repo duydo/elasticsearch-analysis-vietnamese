@@ -52,8 +52,8 @@ public class VietnameseAnalysisTest extends ESTestCase {
         Tokenizer tokenizer = tokenizerFactory.create();
         assertNotNull(tokenizer);
 
-        tokenizer.setReader(new StringReader("Công nghệ thông tin Việt Nam"));
-        assertTokenStreamContents(tokenizer, new String[]{"Công nghệ thông tin", "Việt Nam"});
+        tokenizer.setReader(new StringReader("công nghệ thông tin Việt Nam"));
+        assertTokenStreamContents(tokenizer, new String[]{"công nghệ thông tin", "Việt", "Nam"});
     }
 
     public void testVietnameseAnalyzer() throws IOException {
@@ -61,10 +61,10 @@ public class VietnameseAnalysisTest extends ESTestCase {
         NamedAnalyzer analyzer = analysis.indexAnalyzers.get("vi_analyzer");
         assertNotNull(analyzer);
 
-        TokenStream ts = analyzer.analyzer().tokenStream("test", "Công nghệ thông tin Việt Nam");
+        TokenStream ts = analyzer.analyzer().tokenStream("test", "công nghệ thông tin Việt Nam");
         CharTermAttribute term = ts.addAttribute(CharTermAttribute.class);
         ts.reset();
-        for (String expected : new String[]{"công nghệ thông tin", "việt nam"}) {
+        for (String expected : new String[]{"công nghệ thông tin", "việt", "nam"}) {
             assertThat(ts.incrementToken(), equalTo(true));
             assertThat(term.toString(), equalTo(expected));
         }
@@ -74,7 +74,7 @@ public class VietnameseAnalysisTest extends ESTestCase {
     public TestAnalysis createTestAnalysis() throws IOException {
         String json = "/org/elasticsearch/index/analysis/vi_analysis.json";
         Settings settings = Settings.builder()
-                .loadFromStream(json, VietnameseAnalysisTest.class.getResourceAsStream(json))
+                .loadFromStream(json, VietnameseAnalysisTest.class.getResourceAsStream(json), true)
                 .put(IndexMetaData.SETTING_VERSION_CREATED, Version.CURRENT)
                 .build();
         Settings nodeSettings = Settings.builder().put(Environment.PATH_HOME_SETTING.getKey(), createTempDir()).build();
