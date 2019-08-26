@@ -2,10 +2,9 @@ package org.elasticsearch.index.analysis;
 
 import org.elasticsearch.action.admin.cluster.node.info.NodeInfo;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
-import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
+import org.elasticsearch.action.admin.indices.analyze.AnalyzeAction;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.plugin.analysis.vi.AnalysisVietnamesePlugin;
 import org.elasticsearch.plugins.Plugin;
@@ -45,7 +44,8 @@ public class VietnameseAnalysisIntegrationTest extends ESIntegTestCase {
     }
 
     public void testVietnameseAnalyzer() throws ExecutionException, InterruptedException {
-        AnalyzeResponse response = client().admin().indices()
+
+        AnalyzeAction.Response response = client().admin().indices()
                 .prepareAnalyze("công nghệ thông tin Việt Nam").setAnalyzer("vi_analyzer")
                 .execute().get();
         String[] expected = {"công nghệ thông tin", "việt", "nam"};
@@ -60,7 +60,7 @@ public class VietnameseAnalysisIntegrationTest extends ESIntegTestCase {
         createIndex("test");
         ensureGreen("test");
         final XContentBuilder mapping = jsonBuilder().startObject()
-                .startObject("type")
+                .startObject("_doc")
                 .startObject("properties")
                 .startObject("foo")
                 .field("type", "text")
@@ -69,9 +69,9 @@ public class VietnameseAnalysisIntegrationTest extends ESIntegTestCase {
                 .endObject()
                 .endObject()
                 .endObject();
-        client().admin().indices().preparePutMapping("test").setType("type").setSource(mapping).get();
+        client().admin().indices().preparePutMapping("test").setType("_doc").setSource(mapping).get();
         final XContentBuilder source = jsonBuilder().startObject().field("foo", "công nghệ thông tin Việt Nam").endObject();
-        index("test", "type", "1", source);
+        index("test", "_doc", "1", source);
         refresh();
         SearchResponse response = client().prepareSearch("test").setQuery(
                 QueryBuilders.matchQuery("foo", "công nghệ thông tin")).execute().actionGet();
