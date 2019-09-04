@@ -3,6 +3,7 @@ package org.elasticsearch.index.analysis;
 import org.elasticsearch.action.admin.cluster.node.info.NodeInfo;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeAction;
+import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -45,7 +46,7 @@ public class VietnameseAnalysisIntegrationTest extends ESIntegTestCase {
 
     public void testVietnameseAnalyzer() throws ExecutionException, InterruptedException {
 
-        AnalyzeAction.Response response = client().admin().indices()
+        AnalyzeResponse response = client().admin().indices()
                 .prepareAnalyze("công nghệ thông tin Việt Nam").setAnalyzer("vi_analyzer")
                 .execute().get();
         String[] expected = {"công nghệ thông tin", "việt", "nam"};
@@ -75,6 +76,6 @@ public class VietnameseAnalysisIntegrationTest extends ESIntegTestCase {
         refresh();
         SearchResponse response = client().prepareSearch("test").setQuery(
                 QueryBuilders.matchQuery("foo", "công nghệ thông tin")).execute().actionGet();
-        assertThat(response.getHits().getTotalHits().toString(), is("1 hits"));
+        assertThat(response.getHits().getTotalHits(), is(1L));
     }
 }
