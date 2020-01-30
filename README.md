@@ -1,10 +1,18 @@
+## Changes:
+Lowercase characters before going to tokenize step.
+
+Before: 
+`Công Nghệ Thông Tin Việt Nam` => analyze => `[công, nghệ, thông, tin, việt, nam]`
+
+After: 
+`Công Nghệ Thông Tin Việt Nam` => analyze => `[công nghệ thông tin, việt nam]`
+
 Vietnamese Analysis Plugin for Elasticsearch
 ========================================
 
 Vietnamese Analysis plugin integrates Vietnamese language analysis into Elasticsearch.
 
 The plugin provides the `vi_analyzer` analyzer and `vi_tokenizer` tokenizer. The `vi_analyzer` is composed of the `vi_tokenizer` tokenizer, the `lowercase` and `stop` filter.
-
 
 ## Installation on Elasticsearch 5.x
 
