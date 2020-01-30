@@ -14,18 +14,21 @@
 
 package org.apache.lucene.analysis.vi;
 
+//import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
-import vn.hus.nlp.tokenizer.tokens.TaggedWord;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import vn.hus.nlp.tokenizer.tokens.TaggedWord;
 
 
 /**
@@ -34,7 +37,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author duydo
  */
 public class VietnameseTokenizer extends Tokenizer {
-
+	
     private List<TaggedWord> pending = new CopyOnWriteArrayList<>();
     private int offset = 0;
     private int pos = 0;
@@ -46,7 +49,7 @@ public class VietnameseTokenizer extends Tokenizer {
 
     private final me.duydo.vi.Tokenizer tokenizer;
     private String inputText;
-
+    
     public VietnameseTokenizer(me.duydo.vi.Tokenizer tokenizer) {
         super();
         this.tokenizer = tokenizer;
@@ -54,10 +57,19 @@ public class VietnameseTokenizer extends Tokenizer {
 
     private void tokenize() throws IOException {
         inputText = IOUtils.toString(input);
-        final List<TaggedWord> result = tokenizer.tokenize(new StringReader(inputText));
+        
+        List<TaggedWord> result = null;
+    		inputText = this.lowercase(inputText);
+        result = tokenizer.tokenize(new StringReader(inputText));
         if (result != null) {
             pending.addAll(result);
         }
+    }
+    
+    private String lowercase(String input) {
+    		Locale vietnamLocale = new Locale("vi", "VN");
+    		String lowercase = input.toLowerCase(vietnamLocale);
+    		return lowercase;
     }
 
     @Override

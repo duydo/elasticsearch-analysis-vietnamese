@@ -43,9 +43,8 @@ public class VietnameseAnalysisTest extends ESTestCase {
         assertThat(analyzer.analyzer().tokenStream(null, new StringReader("")), instanceOf(VietnameseTokenizer.class));
 
     }
-
-
-    public void testVietnameseTokenizer() throws IOException {
+    
+    public void testLowercaseBeforeTokenizingVietnameseTokenizer() throws IOException {
         TestAnalysis analysis = createTestAnalysis();
         TokenizerFactory tokenizerFactory = analysis.tokenizer.get("vi_tokenizer");
         assertNotNull(tokenizerFactory);
@@ -53,8 +52,8 @@ public class VietnameseAnalysisTest extends ESTestCase {
         Tokenizer tokenizer = tokenizerFactory.create();
         assertNotNull(tokenizer);
 
-        tokenizer.setReader(new StringReader("công nghệ thông tin Việt Nam"));
-        assertTokenStreamContents(tokenizer, new String[]{"công nghệ thông tin", "Việt", "Nam"});
+        tokenizer.setReader(new StringReader("Công Nghệ THông Tin Việt Nam"));
+        assertTokenStreamContents(tokenizer, new String[]{"công nghệ thông tin", "việt", "nam"});
     }
 
     public void testVietnameseAnalyzer() throws IOException {
@@ -62,7 +61,7 @@ public class VietnameseAnalysisTest extends ESTestCase {
         NamedAnalyzer analyzer = analysis.indexAnalyzers.get("vi_analyzer");
         assertNotNull(analyzer);
 
-        TokenStream ts = analyzer.analyzer().tokenStream("test", "công nghệ thông tin Việt Nam");
+        TokenStream ts = analyzer.analyzer().tokenStream("test", "Công Nghệ Thông Tin Việt Nam");
         CharTermAttribute term = ts.addAttribute(CharTermAttribute.class);
         ts.reset();
         for (String expected : new String[]{"công nghệ thông tin", "việt", "nam"}) {
@@ -92,13 +91,13 @@ public class VietnameseAnalysisTest extends ESTestCase {
         CharTermAttribute term = ts.addAttribute(CharTermAttribute.class);
         OffsetAttribute offset = ts.getAttribute(OffsetAttribute.class);
         ts.reset();
-        String[] expected = new String[]{"phụ tùng", "xe", "mazda", "bán", "tải", "7", "chỗ", "ống", "dẫn", "gió", "tới", "két", "làm", "mát", "khí", "nạp", "cao su", "lưu hóa", "mới", "100%", "phục vụ", "bhbd", "ms", "1", "d0", "013246", "a"};
-        int[] expectedOffset = new int[]{0, 9, 12, 18, 22, 31, 33, 38, 42, 46, 50, 54, 58, 62, 66, 70, 75, 82, 91, 95, 101, 109, 115, 118, 119, 121, 127};
+        String[] expected = new String[]{"phụ tùng", "xe", "mazda", "bán", "tải", "7", "chỗ", "ống", "dẫn", "gió", "tới", "két", "làm", "mát", "khí", "nạp", "cao su", "lưu hóa", "mới", "100%", "phục vụ", "bhbd", "ms", "1", "d", "0013246", "a"};
+        int[] expectedOffset = new int[]{0, 9, 12, 18, 22, 31, 33, 38, 42, 46, 50, 54, 58, 62, 66, 70, 75, 82, 91, 95, 101, 109, 115, 118, 119, 120, 127};
 
         for (int i = 0; i < expected.length; i++) {
             assertThat(ts.incrementToken(), equalTo(true));
             assertThat(term.toString(), equalTo(expected[i]));
-            assertTrue(offset.startOffset() == expectedOffset[i]);
+            assertThat(offset.startOffset(), equalTo(expectedOffset[i]));
         }
         assertThat(ts.incrementToken(), equalTo(false));
     }
