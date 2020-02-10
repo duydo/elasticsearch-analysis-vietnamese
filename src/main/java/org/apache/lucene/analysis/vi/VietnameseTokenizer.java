@@ -37,7 +37,7 @@ import vn.hus.nlp.tokenizer.tokens.TaggedWord;
  * @author duydo
  */
 public class VietnameseTokenizer extends Tokenizer {
-	
+
     private List<TaggedWord> pending = new CopyOnWriteArrayList<>();
     private int offset = 0;
     private int pos = 0;
@@ -49,7 +49,7 @@ public class VietnameseTokenizer extends Tokenizer {
 
     private final me.duydo.vi.Tokenizer tokenizer;
     private String inputText;
-    
+
     public VietnameseTokenizer(me.duydo.vi.Tokenizer tokenizer) {
         super();
         this.tokenizer = tokenizer;
@@ -58,9 +58,8 @@ public class VietnameseTokenizer extends Tokenizer {
     private void tokenize() throws IOException {
         inputText = IOUtils.toString(input);
         
-        List<TaggedWord> result = null;
-    		inputText = this.lowercase(inputText);
-        result = tokenizer.tokenize(new StringReader(inputText));
+        inputText = this.lowercase(inputText);
+        final List<TaggedWord> result = tokenizer.tokenize(new StringReader(inputText));
         if (result != null) {
             pending.addAll(result);
         }
