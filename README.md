@@ -16,6 +16,55 @@ bin/elasticsearch-plugin install link/to/binary/version
 ## Build from Source
 Check this post: [How to build Elasticsearch Vietnamese Analysis Plugin](http://duydo.me/how-to-build-elasticsearch-vietnamese-analysis-plugin/)
 
+## Sample Usage
+
+Sample request
+```
+GET localhost:9200/analyzer
+{
+	"analyzer": "vi_analyzer",
+	"text": "một chuỗi tiếng việt"
+}
+```
+
+Result
+```json
+{
+    "tokens": [
+        {
+            "token": "một",
+            "start_offset": 0,
+            "end_offset": 3,
+            "type": "<PHRASE>",
+            "position": 0
+        },
+        {
+            "token": "chuỗi",
+            "start_offset": 4,
+            "end_offset": 9,
+            "type": "<PHRASE>",
+            "position": 1
+        },
+        {
+            "token": "tiếng",
+            "start_offset": 10,
+            "end_offset": 15,
+            "type": "<PHRASE>",
+            "position": 2
+        },
+        {
+            "token": "việt",
+            "start_offset": 16,
+            "end_offset": 20,
+            "type": "<PHRASE>",
+            "position": 3
+        }
+    ]
+}
+```
+
+If testing failed, consider restarting the elastic service to reload the plugin.
+
 ## Compatible Versions
 | Vietnamese Analysis Plugin | Elasticsearch |
 | -------------------------- | ------------- |
