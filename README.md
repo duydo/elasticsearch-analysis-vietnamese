@@ -71,6 +71,7 @@ If testing failed, consider restarting the elastic service to reload the plugin.
 | master                     | 7.3.1         |
 | 7.4.1                      | 7.4.1         |   
 | 7.4.0                      | 7.4.0         |   
+| 7.3.2                      | 7.3.2         |   
 | 7.3.1                      | 7.3.1         |   
 | 5.6.5                      | 5.6.5         |
 | 5.4.1                      | 5.4.1         |
