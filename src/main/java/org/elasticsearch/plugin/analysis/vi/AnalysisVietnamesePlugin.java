@@ -20,25 +20,25 @@ import org.elasticsearch.index.analysis.AnalyzerProvider;
 import org.elasticsearch.index.analysis.TokenizerFactory;
 import org.elasticsearch.index.analysis.VietnameseAnalyzerProvider;
 import org.elasticsearch.index.analysis.VietnameseTokenizerFactory;
-import org.elasticsearch.indices.analysis.AnalysisModule;
+import org.elasticsearch.indices.analysis.AnalysisModule.AnalysisProvider;
 import org.elasticsearch.plugins.AnalysisPlugin;
 import org.elasticsearch.plugins.Plugin;
 
-import java.util.Collections;
 import java.util.Map;
 
+import static java.util.Collections.singletonMap;
 
 /**
  * @author duydo
  */
 public class AnalysisVietnamesePlugin extends Plugin implements AnalysisPlugin {
     @Override
-    public Map<String, AnalysisModule.AnalysisProvider<TokenizerFactory>> getTokenizers() {
-        return Collections.singletonMap("vi_tokenizer", VietnameseTokenizerFactory::new);
+    public Map<String, AnalysisProvider<TokenizerFactory>> getTokenizers() {
+        return singletonMap("vi_tokenizer", VietnameseTokenizerFactory::new);
     }
 
     @Override
-    public Map<String, AnalysisModule.AnalysisProvider<AnalyzerProvider<? extends Analyzer>>> getAnalyzers() {
-        return Collections.singletonMap("vi_analyzer", VietnameseAnalyzerProvider::new);
+    public Map<String, AnalysisProvider<AnalyzerProvider<? extends Analyzer>>> getAnalyzers() {
+        return singletonMap("vi_analyzer", VietnameseAnalyzerProvider::new);
     }
 }
