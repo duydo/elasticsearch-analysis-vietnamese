@@ -20,6 +20,7 @@ Check this post: [How to build Elasticsearch Vietnamese Analysis Plugin](http://
 | Vietnamese Analysis Plugin | Elasticsearch |
 | -------------------------- | ------------- |
 | master                     | 7.3.1         |
+| 7.3.2                      | 7.3.2         |   
 | 7.3.1                      | 7.3.1         |   
 | 5.6.5                      | 5.6.5         |
 | 5.4.1                      | 5.4.1         |
