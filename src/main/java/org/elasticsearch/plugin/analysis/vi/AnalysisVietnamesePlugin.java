@@ -16,14 +16,12 @@ package org.elasticsearch.plugin.analysis.vi;
 
 
 import org.apache.lucene.analysis.Analyzer;
-import org.elasticsearch.index.analysis.AnalyzerProvider;
-import org.elasticsearch.index.analysis.TokenizerFactory;
-import org.elasticsearch.index.analysis.VietnameseAnalyzerProvider;
-import org.elasticsearch.index.analysis.VietnameseTokenizerFactory;
+import org.elasticsearch.index.analysis.*;
 import org.elasticsearch.indices.analysis.AnalysisModule.AnalysisProvider;
 import org.elasticsearch.plugins.AnalysisPlugin;
 import org.elasticsearch.plugins.Plugin;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static java.util.Collections.singletonMap;
@@ -40,5 +38,12 @@ public class AnalysisVietnamesePlugin extends Plugin implements AnalysisPlugin {
     @Override
     public Map<String, AnalysisProvider<AnalyzerProvider<? extends Analyzer>>> getAnalyzers() {
         return singletonMap("vi_analyzer", VietnameseAnalyzerProvider::new);
+    }
+
+    @Override
+    public Map<String, AnalysisProvider<TokenFilterFactory>> getTokenFilters() {
+        Map<String, AnalysisProvider<TokenFilterFactory>> filters = new HashMap<>();
+        filters.put("vi_stop", VietnameseStopTokenFilterFactory::new);
+        return filters;
     }
 }
