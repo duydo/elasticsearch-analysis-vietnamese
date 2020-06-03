@@ -79,7 +79,30 @@ public class VietnameseTokenizer extends Tokenizer {
                 typeAtt.setType(String.format("<%s>", word.getRule().getName().toUpperCase()));
                 termAtt.copyBuffer(word.getText().toCharArray(), 0, length);
                 final int start = inputText.indexOf(word.getText(), offset);
-                offsetAtt.setOffset(correctOffset(start), offset = correctOffset(start + length));
+                int startChange = start;
+                int lengthChange = length;
+
+                if (start < 0) {
+                    // fix multi space bug
+                    // #67, #68
+                    if (word.getText() != null) {
+                        String[] originArray = word.getText().split(" ");
+                        String firstWord = originArray[0];
+                        String lastWord = originArray[originArray.length - 1];
+                        startChange = inputText.indexOf(firstWord, offset);
+                        if (originArray.length == 1) {
+                            lengthChange = inputText.indexOf(lastWord, offset) - startChange
+                                    + lastWord.length();
+                        } else {
+                            lengthChange = inputText.indexOf(lastWord, startChange + firstWord.length()) - startChange
+                                    + lastWord.length();
+                        }
+                    }
+                }
+                offsetAtt.setOffset(
+                        correctOffset(startChange),
+                        offset = correctOffset((startChange) + lengthChange)
+                );
                 return true;
             }
         }
