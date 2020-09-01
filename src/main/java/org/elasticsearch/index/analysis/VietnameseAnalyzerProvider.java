@@ -19,6 +19,8 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.env.Environment;
 import org.elasticsearch.index.IndexSettings;
 
+import static org.elasticsearch.index.analysis.Analysis.parseStopWords;
+
 /**
  * @author duydo
  */
@@ -27,7 +29,7 @@ public class VietnameseAnalyzerProvider extends AbstractIndexAnalyzerProvider<Vi
 
     public VietnameseAnalyzerProvider(IndexSettings indexSettings, Environment environment, String name, Settings settings) {
         super(indexSettings, name, settings);
-        analyzer = new VietnameseAnalyzer(Analysis.parseStopWords(environment, settings, VietnameseAnalyzer.getDefaultStopSet(), true));
+        analyzer = new VietnameseAnalyzer(parseStopWords(environment, settings, VietnameseAnalyzer.getDefaultStopSet(), true));
     }
 
     @Override
