@@ -72,7 +72,7 @@ public class VietnameseAnalysisTest extends ESTestCase {
         assertThat(ts.incrementToken(), equalTo(false));
     }
 
-    public TestAnalysis createTestAnalysis() throws IOException {
+    public static TestAnalysis createTestAnalysis() throws IOException {
         String json = "/org/elasticsearch/index/analysis/vi_analysis.json";
         Settings settings = Settings.builder()
                 .loadFromStream(json, VietnameseAnalysisTest.class.getResourceAsStream(json), true)
