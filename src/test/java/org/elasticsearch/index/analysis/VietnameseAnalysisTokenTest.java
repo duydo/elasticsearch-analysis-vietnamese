@@ -28,6 +28,11 @@ public class VietnameseAnalysisTokenTest extends ESTestCase {
         inputToken("#Mama & #I. 😘\n\n#HoChiMinh, #Vietnam.", new String[] {"mama", "i", "😘", "hochiminh", "vietnam"});
     }
 
+    public void testVietnameseTokenizerSameWordPhraseAndMultiSpace() throws IOException {
+        inputToken("Giảm 20k cho đơn  từ 299K. Giảm 30k cho đơn từ 399K",
+                new String[] {"giảm", "20", "k", "đơn từ", "299", "k", "giảm", "30", "k", "đơn từ", "399", "k"});
+    }
+
     private void inputToken(String inputText, String[] expectArray) throws IOException {
         TestAnalysis analysis = VietnameseAnalysisTest.createTestAnalysis();
         NamedAnalyzer analyzer = analysis.indexAnalyzers.get("vi_analyzer");
