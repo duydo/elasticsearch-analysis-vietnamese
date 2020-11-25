@@ -27,6 +27,10 @@ import java.io.StringReader;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import java.security.AccessController;
+import java.security.PrivilegedExceptionAction;
+import java.security.PrivilegedActionException;
+
 
 /**
  * Vietnamese Tokenizer.
@@ -54,9 +58,19 @@ public class VietnameseTokenizer extends Tokenizer {
 
     private void tokenize() throws IOException {
         inputText = IOUtils.toString(input);
-        final List<TaggedWord> result = tokenizer.tokenize(new StringReader(inputText));
-        if (result != null) {
-            pending.addAll(result);
+        try {
+            final List<TaggedWord> result = AccessController.doPrivileged(
+                    new PrivilegedExceptionAction<List<TaggedWord>>() {
+                        @Override
+                        public List<TaggedWord> run() throws IOException {
+                            return tokenizer.tokenize(new StringReader(inputText));
+                        }
+                    });
+            if (result != null) {
+                pending.addAll(result);
+            }
+        } catch (PrivilegedActionException e) {
+            throw (IOException) e.getException();
         }
     }
 
