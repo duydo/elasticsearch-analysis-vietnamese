@@ -68,12 +68,12 @@ If testing failed, consider restarting the elastic service to reload the plugin.
 ## Compatible Versions
 | Vietnamese Analysis Plugin | Elasticsearch |
 | -------------------------- | ------------- |
-| master                     | 7.3.1         |
-| 7.5.1                      | 7.5.1         |   
-| 7.4.1                      | 7.4.1         |   
-| 7.4.0                      | 7.4.0         |   
-| 7.3.2                      | 7.3.2         |   
-| 7.3.1                      | 7.3.1         |   
+| master                     | 7.7.1         |
+| 7.5.1                      | 7.5.1         |
+| 7.4.1                      | 7.4.1         |
+| 7.4.0                      | 7.4.0         |
+| 7.3.2                      | 7.3.2         |
+| 7.3.1                      | 7.3.1         |
 | 5.6.5                      | 5.6.5         |
 | 5.4.1                      | 5.4.1         |
 | 5.3.1                      | 5.3.1         |
@@ -101,7 +101,7 @@ If testing failed, consider restarting the elastic service to reload the plugin.
 - [JetBrains](https://www.jetbrains.com) has provided a free license for their great tool: [IntelliJ IDEA](https://www.jetbrains.com/idea/)
 
 ## License
-    
+
     This software is licensed under the Apache 2 license, quoted below.
 
     Licensed under the Apache License, Version 2.0 (the "License"); you may not
