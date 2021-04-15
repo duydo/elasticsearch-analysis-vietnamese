@@ -22,12 +22,13 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ * Vietnamese Analyzer
+ *
  * @author duydo
  */
 public class VietnameseAnalyzer extends StopwordAnalyzerBase {
 
     public static final CharArraySet VIETNAMESE_STOP_WORDS_SET;
-    private final me.duydo.vi.Tokenizer tokenizer;
 
     static {
         final List<String> stopWords = Arrays.asList(
@@ -60,26 +61,27 @@ public class VietnameseAnalyzer extends StopwordAnalyzerBase {
         static final CharArraySet DEFAULT_STOP_SET = VIETNAMESE_STOP_WORDS_SET;
     }
 
+    private final com.coccoc.Tokenizer tokenizer;
+
+
     /**
      * Builds an analyzer with the default stop words: {@link #getDefaultStopSet}.
      */
-    public VietnameseAnalyzer() {
-        this(DefaultSetHolder.DEFAULT_STOP_SET);
+    public VietnameseAnalyzer(String dictPath) {
+        this(dictPath, false, DefaultSetHolder.DEFAULT_STOP_SET);
     }
 
     /**
      * Builds an analyzer with the default stop words
      */
-    public VietnameseAnalyzer(CharArraySet stopWords) {
+    public VietnameseAnalyzer(String dictPath, boolean keepPunctuation, CharArraySet stopWords) {
         super(stopWords);
-        tokenizer = AccessController.doPrivileged((PrivilegedAction<me.duydo.vi.Tokenizer>) () -> new me.duydo.vi.Tokenizer());
+        tokenizer = AccessController.doPrivileged((PrivilegedAction<com.coccoc.Tokenizer>) () -> new com.coccoc.Tokenizer(dictPath, keepPunctuation));
     }
 
     @Override
     protected TokenStreamComponents createComponents(String fieldName) {
-        final Tokenizer tokenizer = new VietnameseTokenizer(this.tokenizer);
-        TokenStream tokenStream = new LowerCaseFilter(tokenizer);
-        tokenStream = new StopFilter(tokenStream, stopwords);
-        return new TokenStreamComponents(tokenizer, tokenStream);
+        final Tokenizer t = new VietnameseTokenizer(tokenizer);
+        return new TokenStreamComponents(t, new StopFilter(new LowerCaseFilter(t), stopwords));
     }
 }

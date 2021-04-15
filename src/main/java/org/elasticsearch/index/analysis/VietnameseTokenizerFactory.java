@@ -14,7 +14,6 @@
 
 package org.elasticsearch.index.analysis;
 
-import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.vi.VietnameseTokenizer;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.env.Environment;
@@ -23,19 +22,25 @@ import org.elasticsearch.index.IndexSettings;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
+import com.coccoc.Tokenizer;
+
 /**
+ * Vietnamese Tokenizer Factory
+ *
  * @author duydo
  */
 public class VietnameseTokenizerFactory extends AbstractTokenizerFactory {
-    private final me.duydo.vi.Tokenizer tokenizer;
+    private final Tokenizer tokenizer;
 
-    public VietnameseTokenizerFactory(IndexSettings indexSettings, Environment environment, String name, Settings settings) {
-        super(indexSettings, settings);
-        tokenizer = AccessController.doPrivileged((PrivilegedAction<me.duydo.vi.Tokenizer>) () -> new me.duydo.vi.Tokenizer());
+    public VietnameseTokenizerFactory(IndexSettings indexSettings, Environment env, String name, Settings settings) {
+        super(indexSettings, settings, name);
+        final String dictPath = settings.get("dict_path", Tokenizer.DEFAULT_DICT_PATH);
+        final boolean keepPunctuation = settings.getAsBoolean("keep_punctuation", false);
+        tokenizer = AccessController.doPrivileged((PrivilegedAction<Tokenizer>) () -> new Tokenizer(dictPath, keepPunctuation));
     }
 
     @Override
-    public Tokenizer create() {
+    public org.apache.lucene.analysis.Tokenizer create() {
         return new VietnameseTokenizer(tokenizer);
     }
 }
