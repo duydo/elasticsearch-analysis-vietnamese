@@ -5,23 +5,15 @@ import java.security.PrivilegedAction;
 import java.util.*;
 
 /**
- * Rewrite class CocCoc Tokenizer for Elasticsearch integration.
- * <p>
- * JNI layer to communicate with the coccoc_tokenizer_jni lib
+ * Rewrite class com.cococ.Tokenizer for Elasticsearch integration.
  *
  * @author duydo, CocCoc team
  */
 public class Tokenizer {
-
     public static final String TOKENIZER_SHARED_LIB_NAME = "coccoc_tokenizer_jni";
-
     static {
-        AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
-            System.loadLibrary(TOKENIZER_SHARED_LIB_NAME);
-            return null;
-        });
+        System.loadLibrary(TOKENIZER_SHARED_LIB_NAME);
     }
-
 
     public static final String DEFAULT_DICT_PATH = "/usr/local/share/tokenizer/dicts";
     public static final String SPACE = " ";
@@ -46,44 +38,23 @@ public class Tokenizer {
         }
     }
 
-    private final boolean keepPunctuation;
-
     public Tokenizer() {
         this(DEFAULT_DICT_PATH);
     }
 
     public Tokenizer(String dictPath) {
-        this(dictPath, false);
-    }
-
-    public Tokenizer(String dictPath, boolean keepPunctuation) {
-        initializeTokenizer(dictPath);
-        this.keepPunctuation = keepPunctuation;
-
-    }
-
-    private void initializeTokenizer(String dictPath) {
-
-        int status = AccessController.doPrivileged((PrivilegedAction<Integer>) () -> initialize(dictPath));
+        int status = initialize(dictPath);
         if (0 > status) {
             throw new RuntimeException("Cannot initialize Tokenizer");
         }
     }
 
-    public List<Token> tokenize(String text) {
-        return tokenize(text, TokenizeOption.NORMAL);
+    public List<Token> segment(String text, TokenizeOption option, boolean keepPunctuation) {
+        return segment(text, option, keepPunctuation, false);
     }
 
-    public List<Token> tokenize(String text, TokenizeOption option) {
-        return tokenize(text, option, this.keepPunctuation);
-    }
-
-    public List<Token> tokenize(String text, TokenizeOption option, boolean keepPunctuation) {
-        return tokenize(text, option, keepPunctuation, false);
-    }
-
-    public List<Token> tokenize(String text, TokenizeOption option, boolean keepPunctuation, boolean forTransforming) {
-        return AccessController.doPrivileged((PrivilegedAction<List<Token>>) () -> segment(text, forTransforming, option.value(), keepPunctuation));
+    public List<Token> segment(String text, TokenizeOption option, boolean keepPunctuation, boolean forTransforming) {
+        return segment(text, forTransforming, option.value(), keepPunctuation);
     }
 
     private List<Token> segment(String text, boolean forTransforming, int tokenizeOption, boolean keepPunctuation) {

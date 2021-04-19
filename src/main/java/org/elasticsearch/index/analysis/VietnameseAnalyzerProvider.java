@@ -14,14 +14,16 @@
 
 package org.elasticsearch.index.analysis;
 
-import com.coccoc.Tokenizer;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.vi.VietnameseAnalyzer;
+import org.elasticsearch.analysis.VietnameseConfig;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.env.Environment;
 import org.elasticsearch.index.IndexSettings;
 
 /**
+ * Vietnamese Analyzer Provider
+ *
  * @author duydo
  */
 public class VietnameseAnalyzerProvider extends AbstractIndexAnalyzerProvider<VietnameseAnalyzer> {
@@ -29,10 +31,7 @@ public class VietnameseAnalyzerProvider extends AbstractIndexAnalyzerProvider<Vi
 
     public VietnameseAnalyzerProvider(IndexSettings indexSettings, Environment env, String name, Settings settings) {
         super(indexSettings, name, settings);
-        final String dictPath = settings.get("dict_path", com.coccoc.Tokenizer.DEFAULT_DICT_PATH);
-        final boolean keepPunctuation = settings.getAsBoolean("keep_punctuation", false);
-        final CharArraySet stopWords = Analysis.parseStopWords(env, settings, VietnameseAnalyzer.getDefaultStopSet(), true);
-        analyzer = new VietnameseAnalyzer(dictPath, keepPunctuation, stopWords);
+        analyzer = new VietnameseAnalyzer(new VietnameseConfig(settings));
     }
 
     @Override

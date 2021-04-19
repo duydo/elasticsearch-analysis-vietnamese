@@ -15,6 +15,7 @@
 package org.apache.lucene.analysis.vi;
 
 import org.apache.lucene.analysis.*;
+import org.elasticsearch.analysis.VietnameseConfig;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -61,27 +62,32 @@ public class VietnameseAnalyzer extends StopwordAnalyzerBase {
         static final CharArraySet DEFAULT_STOP_SET = VIETNAMESE_STOP_WORDS_SET;
     }
 
-    private final com.coccoc.Tokenizer tokenizer;
+
+    private final VietnameseConfig config;
 
 
     /**
      * Builds an analyzer with the default stop words: {@link #getDefaultStopSet}.
      */
-    public VietnameseAnalyzer(String dictPath) {
-        this(dictPath, false, DefaultSetHolder.DEFAULT_STOP_SET);
+    public VietnameseAnalyzer(VietnameseConfig config) {
+        this(config, DefaultSetHolder.DEFAULT_STOP_SET);
     }
 
     /**
      * Builds an analyzer with the default stop words
      */
-    public VietnameseAnalyzer(String dictPath, boolean keepPunctuation, CharArraySet stopWords) {
+    public VietnameseAnalyzer(VietnameseConfig config, CharArraySet stopWords) {
         super(stopWords);
-        tokenizer = AccessController.doPrivileged((PrivilegedAction<com.coccoc.Tokenizer>) () -> new com.coccoc.Tokenizer(dictPath, keepPunctuation));
+        this.config = config;
+
     }
+
 
     @Override
     protected TokenStreamComponents createComponents(String fieldName) {
-        final Tokenizer t = new VietnameseTokenizer(tokenizer);
-        return new TokenStreamComponents(t, new StopFilter(new LowerCaseFilter(t), stopwords));
+        final Tokenizer t = new VietnameseTokenizer(config);
+        final LowerCaseFilter lowerCaseFilter = new LowerCaseFilter(t);
+        final StopFilter stopFilter = new StopFilter(lowerCaseFilter, stopwords);
+        return new TokenStreamComponents(t, stopFilter);
     }
 }

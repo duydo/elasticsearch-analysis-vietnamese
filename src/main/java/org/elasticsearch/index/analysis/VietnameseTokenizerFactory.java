@@ -15,6 +15,7 @@
 package org.elasticsearch.index.analysis;
 
 import org.apache.lucene.analysis.vi.VietnameseTokenizer;
+import org.elasticsearch.analysis.VietnameseConfig;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.env.Environment;
 import org.elasticsearch.index.IndexSettings;
@@ -30,17 +31,15 @@ import com.coccoc.Tokenizer;
  * @author duydo
  */
 public class VietnameseTokenizerFactory extends AbstractTokenizerFactory {
-    private final Tokenizer tokenizer;
+    private final VietnameseConfig config;
 
     public VietnameseTokenizerFactory(IndexSettings indexSettings, Environment env, String name, Settings settings) {
         super(indexSettings, settings, name);
-        final String dictPath = settings.get("dict_path", Tokenizer.DEFAULT_DICT_PATH);
-        final boolean keepPunctuation = settings.getAsBoolean("keep_punctuation", false);
-        tokenizer = AccessController.doPrivileged((PrivilegedAction<Tokenizer>) () -> new Tokenizer(dictPath, keepPunctuation));
+        config = new VietnameseConfig(settings);
     }
 
     @Override
     public org.apache.lucene.analysis.Tokenizer create() {
-        return new VietnameseTokenizer(tokenizer);
+        return new VietnameseTokenizer(config);
     }
 }

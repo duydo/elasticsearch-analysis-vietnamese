@@ -22,11 +22,11 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
+import org.elasticsearch.analysis.VietnameseConfig;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-
 
 /**
  * Vietnamese Tokenizer.
@@ -34,7 +34,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author duydo
  */
 public class VietnameseTokenizer extends Tokenizer {
-
 
     private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
     private final OffsetAttribute offsetAtt = addAttribute(OffsetAttribute.class);
@@ -46,20 +45,13 @@ public class VietnameseTokenizer extends Tokenizer {
     private int offset = 0;
     private int pos = 0;
 
-    private com.coccoc.Tokenizer tokenizer;
+    private final VietnameseTokenizerImpl tokenizer;
 
-    public VietnameseTokenizer(com.coccoc.Tokenizer tokenizer) {
+    public VietnameseTokenizer(VietnameseConfig config) {
         super();
-        this.tokenizer = tokenizer;
+        tokenizer = new VietnameseTokenizerImpl(config);
     }
 
-    private void tokenize() throws IOException {
-        final String text = CharStreams.toString(input);
-        final List<Token> tokens = tokenizer.tokenize(text);
-        if (tokens != null) {
-            pending.addAll(tokens);
-        }
-    }
 
     @Override
     public final boolean incrementToken() throws IOException {
@@ -70,6 +62,7 @@ public class VietnameseTokenizer extends Tokenizer {
             }
         }
         clearAttributes();
+
         for (int i = pos; i < pending.size(); i++) {
             pos++;
             final Token token = pending.get(i);
@@ -96,5 +89,13 @@ public class VietnameseTokenizer extends Tokenizer {
         pos = 0;
         offset = 0;
         pending.clear();
+    }
+
+
+    private void tokenize() throws IOException {
+        final List<Token> tokens = tokenizer.tokenize(input);
+        if (tokens != null) {
+            pending.addAll(tokens);
+        }
     }
 }

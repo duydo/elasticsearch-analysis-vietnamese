@@ -40,8 +40,6 @@ public class VietnameseAnalysisTests extends ESTestCase {
         analyzer = analysis.indexAnalyzers.get("my_analyzer");
         assertNotNull(analyzer);
         assertThat(analyzer.analyzer(), instanceOf(VietnameseAnalyzer.class));
-        assertThat(analyzer.analyzer().tokenStream(null, new StringReader("")), instanceOf(VietnameseTokenizer.class));
-
     }
 
 
