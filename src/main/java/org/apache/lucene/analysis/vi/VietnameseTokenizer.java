@@ -62,7 +62,6 @@ public class VietnameseTokenizer extends Tokenizer {
             }
         }
         clearAttributes();
-
         for (int i = pos; i < pending.size(); i++) {
             pos++;
             final Token token = pending.get(i);

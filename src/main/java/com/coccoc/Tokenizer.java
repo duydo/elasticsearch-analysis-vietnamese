@@ -1,8 +1,7 @@
 package com.coccoc;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Rewrite class com.cococ.Tokenizer for Elasticsearch integration.
@@ -11,11 +10,12 @@ import java.util.*;
  */
 public class Tokenizer {
     public static final String TOKENIZER_SHARED_LIB_NAME = "coccoc_tokenizer_jni";
+    public static final String DEFAULT_DICT_PATH = "/usr/local/share/tokenizer/dicts";
+
     static {
         System.loadLibrary(TOKENIZER_SHARED_LIB_NAME);
     }
 
-    public static final String DEFAULT_DICT_PATH = "/usr/local/share/tokenizer/dicts";
     public static final String SPACE = " ";
     public static final String UNDERSCORE = "_";
     public static final String COMMA = ",";
