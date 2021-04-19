@@ -16,7 +16,6 @@ package org.apache.lucene.analysis.vi;
 
 
 import com.coccoc.Token;
-import com.google.common.io.CharStreams;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
@@ -66,9 +65,8 @@ public class VietnameseTokenizer extends Tokenizer {
             pos++;
             final Token token = pending.get(i);
             posIncrAtt.setPositionIncrement(1);
-            final int length = token.getText().length();
             typeAtt.setType(String.format("<%s>", token.getType()));
-            termAtt.copyBuffer(token.getText().toCharArray(), 0, length);
+            termAtt.copyBuffer(token.getText().toCharArray(), 0, token.getText().length());
             offsetAtt.setOffset(correctOffset(token.getPos()), offset = correctOffset(token.getEndPos()));
             return true;
         }
