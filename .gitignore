@@ -38,3 +38,5 @@ data
 
 target/
 /bin/
+.env
+*.iml
