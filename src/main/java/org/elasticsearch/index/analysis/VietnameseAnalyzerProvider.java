@@ -14,22 +14,25 @@
 
 package org.elasticsearch.index.analysis;
 
+import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.vi.VietnameseAnalyzer;
+import org.elasticsearch.analysis.VietnameseConfig;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.env.Environment;
 import org.elasticsearch.index.IndexSettings;
 
-import static org.elasticsearch.index.analysis.Analysis.parseStopWords;
-
 /**
+ * Provider for {@link VietnameseAnalyzer}
+ *
  * @author duydo
  */
 public class VietnameseAnalyzerProvider extends AbstractIndexAnalyzerProvider<VietnameseAnalyzer> {
     private final VietnameseAnalyzer analyzer;
 
-    public VietnameseAnalyzerProvider(IndexSettings indexSettings, Environment environment, String name, Settings settings) {
+    public VietnameseAnalyzerProvider(IndexSettings indexSettings, Environment env, String name, Settings settings) {
         super(indexSettings, name, settings);
-        analyzer = new VietnameseAnalyzer(parseStopWords(environment, settings, VietnameseAnalyzer.getDefaultStopSet(), true));
+        final CharArraySet stopWords = Analysis.parseStopWords(env, settings, VietnameseAnalyzer.getDefaultStopSet());
+        analyzer = new VietnameseAnalyzer(new VietnameseConfig(settings), stopWords);
     }
 
     @Override
