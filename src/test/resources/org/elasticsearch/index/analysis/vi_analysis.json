@@ -3,8 +3,8 @@
     "analysis": {
       "analyzer": {
         "my_analyzer": {
-          "type": "custom",
-          "tokenizer": "vi_tokenizer"
+          "type": "vi_analyzer",
+          "dict_path": "/usr/local/share/tokenizer/dicts"
         }
       }
     }

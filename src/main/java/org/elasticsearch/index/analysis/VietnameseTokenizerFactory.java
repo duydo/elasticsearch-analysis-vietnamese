@@ -14,28 +14,27 @@
 
 package org.elasticsearch.index.analysis;
 
-import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.vi.VietnameseTokenizer;
+import org.elasticsearch.analysis.VietnameseConfig;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.env.Environment;
 import org.elasticsearch.index.IndexSettings;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-
 /**
+ * Factory for {@link VietnameseTokenizer}
+ *
  * @author duydo
  */
 public class VietnameseTokenizerFactory extends AbstractTokenizerFactory {
-    private final me.duydo.vi.Tokenizer tokenizer;
+    private final VietnameseConfig config;
 
-    public VietnameseTokenizerFactory(IndexSettings indexSettings, Environment environment, String name, Settings settings) {
-        super(indexSettings, settings);
-        tokenizer = AccessController.doPrivileged((PrivilegedAction<me.duydo.vi.Tokenizer>) () -> new me.duydo.vi.Tokenizer());
+    public VietnameseTokenizerFactory(IndexSettings indexSettings, Environment env, String name, Settings settings) {
+        super(indexSettings, settings, name);
+        config = new VietnameseConfig(settings);
     }
 
     @Override
-    public Tokenizer create() {
-        return new VietnameseTokenizer(tokenizer);
+    public org.apache.lucene.analysis.Tokenizer create() {
+        return new VietnameseTokenizer(config);
     }
 }
