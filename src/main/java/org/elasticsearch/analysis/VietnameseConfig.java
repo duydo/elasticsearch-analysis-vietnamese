@@ -3,7 +3,7 @@ package org.elasticsearch.analysis;
 import org.elasticsearch.common.settings.Settings;
 
 public class VietnameseConfig {
-    public static final String DEFAULT_DICT_PATH = "/usr/share/tokenizer/dicts";
+    public static final String DEFAULT_DICT_PATH = "/usr/local/share/tokenizer/dicts";
     public final String dictPath;
     public final Boolean keepPunctuation;
     public final Boolean splitHost;
