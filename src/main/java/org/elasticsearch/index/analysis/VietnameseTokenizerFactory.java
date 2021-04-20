@@ -20,13 +20,8 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.env.Environment;
 import org.elasticsearch.index.IndexSettings;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-
-import com.coccoc.Tokenizer;
-
 /**
- * Vietnamese Tokenizer Factory
+ * Factory for {@link VietnameseTokenizer}
  *
  * @author duydo
  */

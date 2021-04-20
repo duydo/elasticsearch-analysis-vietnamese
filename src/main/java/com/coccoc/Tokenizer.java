@@ -4,13 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Rewrite class com.cococ.Tokenizer for Elasticsearch integration.
+ * Rewrite class com.coccoc.Tokenizer for Elasticsearch integration.
  *
  * @author duydo, CocCoc team
  */
 public class Tokenizer {
     public static final String TOKENIZER_SHARED_LIB_NAME = "coccoc_tokenizer_jni";
-    public static final String DEFAULT_DICT_PATH = "/usr/local/share/tokenizer/dicts";
 
     static {
         System.loadLibrary(TOKENIZER_SHARED_LIB_NAME);
@@ -27,7 +26,7 @@ public class Tokenizer {
         HOST(1),
         URL(2);
 
-        private int value;
+        private final int value;
 
         TokenizeOption(int value) {
             this.value = value;
@@ -38,14 +37,12 @@ public class Tokenizer {
         }
     }
 
-    public Tokenizer() {
-        this(DEFAULT_DICT_PATH);
-    }
-
     public Tokenizer(String dictPath) {
         int status = initialize(dictPath);
         if (0 > status) {
-            throw new RuntimeException("Cannot initialize Tokenizer");
+            throw new RuntimeException(
+                    String.format("Cannot initialize Tokenizer: %s", dictPath)
+            );
         }
     }
 
@@ -116,5 +113,4 @@ public class Tokenizer {
 
     //Calls CocCoc lib's initialize function
     private native int initialize(String dictPath);
-
 }

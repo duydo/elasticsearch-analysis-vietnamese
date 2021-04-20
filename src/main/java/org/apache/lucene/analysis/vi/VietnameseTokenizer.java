@@ -24,11 +24,9 @@ import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 import org.elasticsearch.analysis.VietnameseConfig;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * Vietnamese Tokenizer.
+ * {@link Tokenizer} for Vietnamese language
  *
  * @author duydo
  */
@@ -39,31 +37,20 @@ public class VietnameseTokenizer extends Tokenizer {
     private final TypeAttribute typeAtt = addAttribute(TypeAttribute.class);
     private final PositionIncrementAttribute posIncrAtt = addAttribute(PositionIncrementAttribute.class);
 
-    private final List<Token> pending = new CopyOnWriteArrayList<>();
-
-    private int offset = 0;
-    private int pos = 0;
-
     private final VietnameseTokenizerImpl tokenizer;
+    private int offset = 0;
 
     public VietnameseTokenizer(VietnameseConfig config) {
         super();
-        tokenizer = new VietnameseTokenizerImpl(config);
+        tokenizer = new VietnameseTokenizerImpl(config, input);
     }
 
 
     @Override
     public final boolean incrementToken() throws IOException {
-        while (pending.size() == 0) {
-            tokenize();
-            if (pending.size() == 0) {
-                return false;
-            }
-        }
         clearAttributes();
-        for (int i = pos; i < pending.size(); i++) {
-            pos++;
-            final Token token = pending.get(i);
+        final Token token = tokenizer.getNextToken();
+        if (token != null) {
             posIncrAtt.setPositionIncrement(1);
             typeAtt.setType(String.format("<%s>", token.getType()));
             termAtt.copyBuffer(token.getText().toCharArray(), 0, token.getText().length());
@@ -83,16 +70,7 @@ public class VietnameseTokenizer extends Tokenizer {
     @Override
     public void reset() throws IOException {
         super.reset();
-        pos = 0;
+        tokenizer.reset(input);
         offset = 0;
-        pending.clear();
-    }
-
-
-    private void tokenize() throws IOException {
-        final List<Token> tokens = tokenizer.tokenize(input);
-        if (tokens != null) {
-            pending.addAll(tokens);
-        }
     }
 }

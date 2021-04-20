@@ -3,17 +3,18 @@ package org.elasticsearch.analysis;
 import org.elasticsearch.common.settings.Settings;
 
 public class VietnameseConfig {
+    public static final String DEFAULT_DICT_PATH = "/usr/local/share/tokenizer/dicts";
     public final String dictPath;
     public final Boolean keepPunctuation;
-    public final Boolean keepHost;
-    public final Boolean keepURL;
+    public final Boolean splitHost;
+    public final Boolean splitURL;
 
 
     public VietnameseConfig(Settings settings) {
-        dictPath = settings.get("dict_path", "/usr/local/share/tokenizer/dicts");
+        dictPath = settings.get("dict_path", DEFAULT_DICT_PATH);
         keepPunctuation = settings.getAsBoolean("keep_punctuation", Boolean.FALSE);
-        keepHost = settings.getAsBoolean("keep_host", Boolean.FALSE);
-        keepURL = settings.getAsBoolean("keep_url", Boolean.FALSE);
+        splitHost = settings.getAsBoolean("split_host", Boolean.FALSE);
+        splitURL = settings.getAsBoolean("split_url", Boolean.FALSE);
     }
 
 }

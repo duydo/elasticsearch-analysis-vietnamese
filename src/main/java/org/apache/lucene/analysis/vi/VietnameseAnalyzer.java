@@ -17,33 +17,24 @@ package org.apache.lucene.analysis.vi;
 import org.apache.lucene.analysis.*;
 import org.elasticsearch.analysis.VietnameseConfig;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.Arrays;
-import java.util.List;
+import java.io.IOException;
 
 /**
- * Vietnamese Analyzer
+ * {@link Analyzer} for Vietnamese language
  *
  * @author duydo
  */
 public class VietnameseAnalyzer extends StopwordAnalyzerBase {
 
-    public static final CharArraySet VIETNAMESE_STOP_WORDS_SET;
-
-    static {
-        final List<String> stopWords = Arrays.asList(
-                "bị", "bởi", "cả", "các", "cái", "cần", "càng", "chỉ", "chiếc", "cho", "chứ", "chưa", "chuyện",
-                "có", "có thể", "cứ", "của", "cùng", "cũng", "đã", "đang", "đây", "để", "đến nỗi", "đều", "điều",
-                "do", "đó", "được", "dưới", "gì", "khi", "không", "là", "lại", "lên", "lúc", "mà", "mỗi", "một cách",
-                "này", "nên", "nếu", "ngay", "nhiều", "như", "nhưng", "những", "nơi", "nữa", "phải", "qua", "ra",
-                "rằng", "rằng", "rất", "rất", "rồi", "sau", "sẽ", "so", "sự", "tại", "theo", "thì", "trên", "trước",
-                "từ", "từng", "và", "vẫn", "vào", "vậy", "vì", "việc", "với", "vừa"
-        );
-        final CharArraySet stopSet = new CharArraySet(stopWords, false);
-        VIETNAMESE_STOP_WORDS_SET = CharArraySet.unmodifiableSet(stopSet);
-    }
-
+    /**
+     * File containing default Vietnamese stopwords.
+     */
+    public final static String DEFAULT_STOPWORD_FILE = "stopwords.txt";
+    /**
+     * The comment character in the stopwords file.
+     * All lines prefixed with this will be ignored.
+     */
+    private static final String STOPWORDS_COMMENT = "#";
 
     /**
      * Returns an unmodifiable instance of the default stop words set.
@@ -54,23 +45,33 @@ public class VietnameseAnalyzer extends StopwordAnalyzerBase {
         return DefaultSetHolder.DEFAULT_STOP_SET;
     }
 
+
     /**
      * Atomically loads the DEFAULT_STOP_SET in a lazy fashion once the outer class
-     * accesses the static final set the first time.
+     * accesses the static final set the first time.;
      */
     private static class DefaultSetHolder {
-        static final CharArraySet DEFAULT_STOP_SET = VIETNAMESE_STOP_WORDS_SET;
+        static final CharArraySet DEFAULT_STOP_SET;
+
+        static {
+            try {
+                DEFAULT_STOP_SET = loadStopwordSet(false, VietnameseAnalyzer.class, DEFAULT_STOPWORD_FILE, STOPWORDS_COMMENT);
+            } catch (IOException ex) {
+                // default set should always be present as it is part of the
+                // distribution (JAR)
+                throw new RuntimeException("Unable to load default stopword set");
+            }
+        }
     }
 
 
     private final VietnameseConfig config;
 
-
     /**
      * Builds an analyzer with the default stop words: {@link #getDefaultStopSet}.
      */
     public VietnameseAnalyzer(VietnameseConfig config) {
-        this(config, DefaultSetHolder.DEFAULT_STOP_SET);
+        this(config, getDefaultStopSet());
     }
 
     /**
@@ -79,15 +80,13 @@ public class VietnameseAnalyzer extends StopwordAnalyzerBase {
     public VietnameseAnalyzer(VietnameseConfig config, CharArraySet stopWords) {
         super(stopWords);
         this.config = config;
-
     }
 
 
     @Override
     protected TokenStreamComponents createComponents(String fieldName) {
-        final Tokenizer t = new VietnameseTokenizer(config);
-        final LowerCaseFilter lowerCaseFilter = new LowerCaseFilter(t);
-        final StopFilter stopFilter = new StopFilter(lowerCaseFilter, stopwords);
-        return new TokenStreamComponents(t, stopFilter);
+        final Tokenizer source = new VietnameseTokenizer(config);
+        TokenStream result = new StopFilter(source, stopwords);
+        return new TokenStreamComponents(source, result);
     }
 }
