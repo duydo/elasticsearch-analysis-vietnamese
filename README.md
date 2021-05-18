@@ -89,7 +89,7 @@ Edit the `elasticsearch-analysis-vietnamese/pom.xml` to change the version of El
 ...
 <groupId>org.elasticsearch</groupId>
 <artifactId>elasticsearch-analysis-vietnamese</artifactId>
-<version>7.11.2</version>
+<version>7.4.0</version>
 ...
  ```
 
