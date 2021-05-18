@@ -91,8 +91,6 @@ Edit the `elasticsearch-analysis-vietnamese/pom.xml` to change the version of El
 <artifactId>elasticsearch-analysis-vietnamese</artifactId>
 <version>7.4.0</version>
 ...
-<elasticsearch.version>7.4.0</elasticsearch.version>
-...
  ```
 
 Build the plugin:
