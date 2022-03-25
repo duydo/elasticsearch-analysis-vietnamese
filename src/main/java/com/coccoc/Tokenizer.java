@@ -15,11 +15,6 @@ public class Tokenizer {
         System.loadLibrary(TOKENIZER_SHARED_LIB_NAME);
     }
 
-    public static final String SPACE = " ";
-    public static final String UNDERSCORE = "_";
-    public static final String COMMA = ",";
-    public static final String DOT = ".";
-
 
     public enum TokenizeOption {
         NORMAL(0),
@@ -37,12 +32,34 @@ public class Tokenizer {
         }
     }
 
-    public Tokenizer(String dictPath) {
+    public static final String SPACE = " ";
+    public static final String UNDERSCORE = "_";
+    public static final String COMMA = ",";
+    public static final String DOT = ".";
+
+
+    private static String dictPath = null;
+
+    private static final class Loader {
+        private static final Tokenizer INSTANCE = load();
+
+        private Loader() {
+        }
+
+        private static Tokenizer load() {
+            return new Tokenizer(dictPath);
+        }
+    }
+
+    public static Tokenizer getInstance(String dictPath) {
+        Tokenizer.dictPath = dictPath;
+        return Loader.INSTANCE;
+    }
+
+    private Tokenizer(String dictPath) {
         int status = initialize(dictPath);
         if (0 > status) {
-            throw new RuntimeException(
-                    String.format("Cannot initialize Tokenizer: %s", dictPath)
-            );
+            throw new RuntimeException(String.format("Cannot initialize Tokenizer: %s", dictPath));
         }
     }
 
