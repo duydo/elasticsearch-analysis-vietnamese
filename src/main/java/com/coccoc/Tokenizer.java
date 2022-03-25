@@ -59,9 +59,7 @@ public class Tokenizer {
     private Tokenizer(String dictPath) {
         int status = initialize(dictPath);
         if (0 > status) {
-            throw new RuntimeException(
-                    String.format("Cannot initialize Tokenizer: %s", dictPath)
-            );
+            throw new RuntimeException(String.format("Cannot initialize Tokenizer: %s", dictPath));
         }
     }
 
