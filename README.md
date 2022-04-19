@@ -89,7 +89,7 @@ Edit the `elasticsearch-analysis-vietnamese/pom.xml` to change the version of El
 ...
 <groupId>org.elasticsearch</groupId>
 <artifactId>elasticsearch-analysis-vietnamese</artifactId>
-<version>7.4.0</version>
+<version>7.17.1</version>
 ...
  ```
 
@@ -114,8 +114,9 @@ If you want to use the plugin with prior versions of Elasticsearch, you can buil
 
 | Vietnamese Analysis Plugin | Elasticsearch |
 | -------------------------- | ------------- |
-| master                     | 7.12.1        |
-| 7.12.1                     | 7.12.1        |     
+| chưa hỗ trợ                | 8.x           |
+| master                     | 7.16~7.17     |
+| 7.12.1                     | 7.12.1~7.15.x |     
 | 7.3.1                      | 7.3.1         |   
 | 5.6.5                      | 5.6.5         |
 | 5.4.1                      | 5.4.1         |
