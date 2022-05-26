@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout analysis-vietnamese 
         uses: actions/checkout@v3
+        with:
+          ref: feature/add-ci
       - name: Check Out coccoc-tokenizer
         uses: actions/checkout@v3
         with:
