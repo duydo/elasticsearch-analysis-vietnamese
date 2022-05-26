@@ -51,7 +51,7 @@ final class VietnameseTokenizerImpl {
             option = TokenizeOption.NORMAL;
         }
         tokenizer = AccessController.doPrivileged(
-                (PrivilegedAction<Tokenizer>) () -> new Tokenizer(config.dictPath)
+                (PrivilegedAction<Tokenizer>) () -> Tokenizer.getInstance(config.dictPath)
         );
         pending = new CopyOnWriteArrayList<>();
     }

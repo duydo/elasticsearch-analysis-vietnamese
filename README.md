@@ -1,5 +1,7 @@
 # Vietnamese Analysis Plugin for Elasticsearch
 
+[![Test](https://github.com/duydo/elasticsearch-analysis-vietnamese/actions/workflows/test.yml/badge.svg)](https://github.com/duydo/elasticsearch-analysis-vietnamese/actions/workflows/test.yml)
+
 Vietnamese Analysis plugin integrates Vietnamese language analysis into Elasticsearch. It uses [C++ tokenizer for Vietnamese](https://github.com/coccoc/coccoc-tokenizer) library developed by
 CocCoc team for their Search Engine and Ads systems.
 
@@ -114,7 +116,6 @@ If you want to use the plugin with prior versions of Elasticsearch, you can buil
 
 | Vietnamese Analysis Plugin | Elasticsearch |
 | -------------------------- | ------------- |
-| chưa hỗ trợ                | 8.x           |
 | master                     | 7.16~7.17     |
 | 7.12.1                     | 7.12.1~7.15.x |     
 | 7.3.1                      | 7.3.1         |   
