@@ -1,0 +1,35 @@
+name: Test
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        entry:
+          - { version: 11, distribution: 'adopt' }
+          - { version: 17, distribution: 'adopt' }
+    steps:
+      - name: Checkout analysis-vietnamese 
+        uses: actions/checkout@v3
+      - name: Check Out coccoc-tokenizer
+        uses: actions/checkout@v3
+        with:
+          repository: coccoc/coccoc-tokenizer
+          path: coccoc-tokenizer
+      - name: Build coccoc-tokenizer
+        working-directory: ./coccoc-tokenizer
+        run: |
+          mkdir build && cd build
+          cmake -DBUILD_JAVA=1 ..
+          sudo make install
+      - name: Set up JDK ${{ matrix.entry.version }}
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ matrix.entry.version }}
+          distribution: ${{ matrix.entry.distribution }}
+          cache: maven
+      - name: Build and Test
+        run: mvn --batch-mode test
+ 
