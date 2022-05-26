@@ -33,5 +33,6 @@ jobs:
           distribution: ${{ matrix.entry.distribution }}
           cache: maven
       - name: Build and Test
-        run: mvn --batch-mode test
- 
+        run: |
+          export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+          mvn --batch-mode test
