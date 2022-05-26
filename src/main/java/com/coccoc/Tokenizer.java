@@ -41,12 +41,12 @@ public class Tokenizer {
     private static String dictPath = null;
 
     private static final class Loader {
-        private static final Tokenizer INSTANCE = load();
+        private static final Tokenizer INSTANCE = get();
 
         private Loader() {
         }
 
-        private static Tokenizer load() {
+        private static Tokenizer get() {
             return new Tokenizer(dictPath);
         }
     }
