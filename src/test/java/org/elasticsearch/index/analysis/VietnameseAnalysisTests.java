@@ -81,7 +81,7 @@ public class VietnameseAnalysisTests extends ESTestCase {
         TokenStream ts = analyzer.analyzer().tokenStream("test", "Công nghệ thông tin Việt Nam https://duydo.me");
         CharTermAttribute term = ts.addAttribute(CharTermAttribute.class);
         ts.reset();
-        for (String expected : new String[]{"công nghệ", "thông tin", "việt nam", "https", "duydo", "me"}) {
+        for (String expected : new String[]{"Công nghệ", "thông tin", "Việt Nam", "https", "duydo", "me"}) {
             assertThat(ts.incrementToken(), equalTo(true));
             assertThat(term.toString(), equalTo(expected));
         }
@@ -97,7 +97,7 @@ public class VietnameseAnalysisTests extends ESTestCase {
         assertNotNull(tokenizer);
 
         tokenizer.setReader(new StringReader("công nghệ thông tin Việt Nam"));
-        assertTokenStreamContents(tokenizer, new String[]{"công nghệ", "thông tin", "việt nam"});
+        assertTokenStreamContents(tokenizer, new String[]{"công nghệ", "thông tin", "Việt Nam"});
     }
 
 

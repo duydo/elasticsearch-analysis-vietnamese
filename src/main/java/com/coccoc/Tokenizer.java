@@ -64,11 +64,7 @@ public class Tokenizer {
     }
 
     public List<Token> segment(String text, TokenizeOption option, boolean keepPunctuation) {
-        return segment(text, option, keepPunctuation, false);
-    }
-
-    public List<Token> segment(String text, TokenizeOption option, boolean keepPunctuation, boolean forTransforming) {
-        return segment(text, forTransforming, option.value(), keepPunctuation);
+        return segment(text, false, option.value(), keepPunctuation);
     }
 
     private List<Token> segment(String text, boolean forTransforming, int tokenizeOption, boolean keepPunctuation) {
@@ -94,22 +90,15 @@ public class Tokenizer {
         int tokenSize = 4 * 6;
         for (int i = 0, spacePos = 0; i < rangesSize; ++i) {
             // Positions of UNSAFE values are calculated from {struct Token} in tokenizer.hpp
-            int startPos = Unsafe.UNSAFE.getInt(rangesDataPointer + i * tokenSize);
-            int endPos = Unsafe.UNSAFE.getInt(rangesDataPointer + i * tokenSize + 4);
             int originalStartPos = Unsafe.UNSAFE.getInt(rangesDataPointer + i * tokenSize + 8);
             int originalEndPos = Unsafe.UNSAFE.getInt(rangesDataPointer + i * tokenSize + 12);
             int type = Unsafe.UNSAFE.getInt(rangesDataPointer + i * tokenSize + 16);
             int segType = Unsafe.UNSAFE.getInt(rangesDataPointer + i * tokenSize + 20);
 
             // Build substring from UNSAFE array of codepoints
-            // TODO: Is there a faster way than using StringBuilder?
             final StringBuilder sb = new StringBuilder();
-            for (int j = startPos; j < endPos; ++j) {
-                if (j == spacePositions[spacePos]) {
-                    sb.append(forTransforming ? UNDERSCORE : SPACE);
-                    spacePos++;
-                }
-                sb.appendCodePoint(Unsafe.UNSAFE.getInt(normalizedStringPointer + j * 4));
+            for (int j = originalStartPos; j < originalEndPos; ++j) {
+                sb.appendCodePoint(text.charAt(j));
             }
             res.add(new Token(segType == 1 ? sb.toString().replace(COMMA, DOT) : sb.toString(),
                     Token.Type.fromInt(type), Token.SegType.fromInt(segType), originalStartPos, originalEndPos));
