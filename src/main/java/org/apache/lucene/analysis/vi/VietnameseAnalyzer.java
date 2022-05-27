@@ -87,6 +87,7 @@ public class VietnameseAnalyzer extends StopwordAnalyzerBase {
     protected TokenStreamComponents createComponents(String fieldName) {
         final Tokenizer source = new VietnameseTokenizer(config);
         TokenStream result = new StopFilter(source, stopwords);
+        result = new LowerCaseFilter(result);
         return new TokenStreamComponents(source, result);
     }
 }
