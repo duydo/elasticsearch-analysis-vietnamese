@@ -75,18 +75,8 @@ public class Tokenizer {
 
         final List<Token> res = new ArrayList<>();
         // Positions from JNI implementation .cpp file
-        long normalizedStringPointer = Unsafe.UNSAFE.getLong(resPointer + 8);
         int rangesSize = (int) Unsafe.UNSAFE.getLong(resPointer + 8 * 2);
         long rangesDataPointer = Unsafe.UNSAFE.getLong(resPointer + 8 * 3);
-
-        int spacePositionsSize = (int) Unsafe.UNSAFE.getLong(resPointer + 8 * 5);
-        long spacePositionsDataPointer = Unsafe.UNSAFE.getLong(resPointer + 8 * 6);
-        int[] spacePositions = new int[spacePositionsSize + 1];
-        for (int i = 0; i < spacePositionsSize; ++i) {
-            spacePositions[i] = Unsafe.UNSAFE.getInt(spacePositionsDataPointer + i * 4);
-        }
-        spacePositions[spacePositionsSize] = -1;
-
         int tokenSize = 4 * 6;
         for (int i = 0, spacePos = 0; i < rangesSize; ++i) {
             // Positions of UNSAFE values are calculated from {struct Token} in tokenizer.hpp
