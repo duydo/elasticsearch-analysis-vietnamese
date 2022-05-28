@@ -29,7 +29,7 @@ public class VietnameseAnalyzer extends StopwordAnalyzerBase {
     /**
      * File containing default Vietnamese stopwords.
      */
-    public final static String DEFAULT_STOPWORD_FILE = "stopwords.txt";
+    public final static String DEFAULT_STOPWORDS_FILE = "stopwords.txt";
     /**
      * The comment character in the stopwords file.
      * All lines prefixed with this will be ignored.
@@ -55,7 +55,7 @@ public class VietnameseAnalyzer extends StopwordAnalyzerBase {
 
         static {
             try {
-                DEFAULT_STOP_SET = loadStopwordSet(false, VietnameseAnalyzer.class, DEFAULT_STOPWORD_FILE, STOPWORDS_COMMENT);
+                DEFAULT_STOP_SET = loadStopwordSet(false, VietnameseAnalyzer.class, DEFAULT_STOPWORDS_FILE, STOPWORDS_COMMENT);
             } catch (IOException ex) {
                 // default set should always be present as it is part of the
                 // distribution (JAR)
@@ -86,8 +86,8 @@ public class VietnameseAnalyzer extends StopwordAnalyzerBase {
     @Override
     protected TokenStreamComponents createComponents(String fieldName) {
         final Tokenizer source = new VietnameseTokenizer(config);
-        TokenStream result = new StopFilter(source, stopwords);
-        result = new LowerCaseFilter(result);
+        TokenStream result = new LowerCaseFilter(source);
+        result = new StopFilter(result, stopwords);
         return new TokenStreamComponents(source, result);
     }
 }

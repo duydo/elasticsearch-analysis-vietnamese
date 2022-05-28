@@ -1,6 +1,7 @@
 package com.coccoc;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -64,16 +65,12 @@ public class Tokenizer {
     }
 
     public List<Token> segment(String text, TokenizeOption option, boolean keepPunctuation) {
-        return segment(text, false, option.value(), keepPunctuation);
-    }
-
-    private List<Token> segment(String text, boolean forTransforming, int tokenizeOption, boolean keepPunctuation) {
         if (text == null) {
             throw new IllegalArgumentException("text is null");
         }
-        long resPointer = segmentPointer(text, forTransforming, tokenizeOption, keepPunctuation);
+        long resPointer = segmentPointer(text, false, option.value(), keepPunctuation);
 
-        final List<Token> res = new ArrayList<>();
+        final List<Token> tokens = new ArrayList<>();
         // Positions from JNI implementation .cpp file
         int rangesSize = (int) Unsafe.UNSAFE.getLong(resPointer + 8 * 2);
         long rangesDataPointer = Unsafe.UNSAFE.getLong(resPointer + 8 * 3);
@@ -90,14 +87,11 @@ public class Tokenizer {
             for (int j = originalStartPos; j < originalEndPos; ++j) {
                 sb.appendCodePoint(text.charAt(j));
             }
-            res.add(new Token(segType == 1 ? sb.toString().replace(COMMA, DOT) : sb.toString(),
+            tokens.add(new Token(segType == 1 ? sb.toString().replace(COMMA, DOT) : sb.toString(),
                     Token.Type.fromInt(type), Token.SegType.fromInt(segType), originalStartPos, originalEndPos));
         }
-        if (forTransforming && tokenizeOption == TokenizeOption.NORMAL.value()) {
-            res.add(Token.FULL_STOP);
-        }
         freeMemory(resPointer);
-        return res;
+        return tokens;
     }
 
 
