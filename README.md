@@ -10,15 +10,16 @@ The plugin provides `vi_analyzer` analyzer, `vi_tokenizer` tokenizer and `vi_sto
 ## Example output
 
 ```
-GET /_analyze
+GET _analyze
 {
   "analyzer": "vi_analyzer",
-  "text": "Công nghệ thông tin Việt Nam"
+  "text": "Cộng hòa Xã hội chủ nghĩa Việt Nam"
 }
 ```
+
 The above sentence would produce the following terms:
 ```
-["công nghệ", "thông tin", "việt nam"]
+["cộng hòa", "xã hội", "chủ nghĩa" ,"việt nam"]
 
 ```
 
@@ -26,7 +27,7 @@ The above sentence would produce the following terms:
 
 The `vi_analyzer` analyzer accepts the following parameters:
 
-- `dict_path` The path to tokenizer dictionary on system. Defaults to `/usr/share/tokenizer/dicts`.
+- `dict_path` The path to tokenizer dictionary on system. Defaults to `/usr/local/share/tokenizer/dicts`.
 - `keep_punctuation` Keep punctuation marks as tokens. Defaults to `false`.
 - `split_url` If it's enabled (`true`), a domain `duydo.me` is split into  `["duy", "do", "me"]`.
   If it's disabled (`false`) `duydo.me` is split into `["duydo", "me"]`. Defaults to `false`.
@@ -57,7 +58,7 @@ PUT my-vi-index-00001
 GET my-vi-index-00001/_analyze
 {
   "analyzer": "my_vi_analyzer",
-  "text": "công nghệ thông tin Việt Nam rất phát triển trong những năm gần đây."
+  "text": "Công nghệ thông tin Việt Nam rất phát triển trong những năm gần đây."
 }
 ```
 
@@ -66,6 +67,47 @@ The above example produces the following terms:
 ["công nghệ", "thông tin", "việt nam", "phát triển", "trong", "năm", "gần đây", "."]
 
 ```
+
+We can also create a custom analyzer with the `vi_tokenizer`. In following example, we create `my_vi_analyzer` to produce
+both diacritic and no diacritic tokens in lowercase:
+
+```
+PUT my-vi-index-00002
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "my_vi_analyzer": {
+          "tokenizer": "vi_tokenizer",
+          "filter": [
+            "lowercase",
+            "ascii_folding"
+          ]
+        }
+      },
+      "filter": {
+        "ascii_folding": {
+          "type": "asciifolding",
+          "preserve_original": true
+        }
+      }
+    }
+  }
+}
+
+GET my-vi-index-00002/_analyze
+{
+  "analyzer": "my_vi_analyzer",
+  "text": "Cộng hòa Xã hội chủ nghĩa Việt Nam"
+}
+```
+
+The above example produces the following terms:
+```
+["cong hoa", "cộng hòa", "xa hoi", "xã hội", "chu nghia", "chủ nghĩa", "viet nam", "việt nam"]
+
+```
+
 ## Build from Source
 ### Step 1: Build C++ tokenizer for Vietnamese library
 ```sh
@@ -74,8 +116,13 @@ cd coccoc-tokenizer && mkdir build && cd build
 cmake -DBUILD_JAVA=1 ..
 make install
 ```
+By default, the `make install` installs:
+- the lib commands (`tokenizer`, `dict_compiler` and `vn_lang_tool`) under `/usr/local/bin`
+- the dynamic lib (`libcoccoc_tokenizer_jni.so`) under `/usr/local/lib/`. The plugin uses this lib directly.
+- the dictionary files under `/usr/local/share/tokenizer/dicts`. The plugin uses this path for `dict_path` by default.
 
-Check their [repo](https://github.com/coccoc/coccoc-tokenizer) for more information to build the library.
+Refer [the repo](https://github.com/coccoc/coccoc-tokenizer) for more information to build the library.
+
 
 ### Step 2: Build the plugin
 
@@ -85,12 +132,10 @@ Clone the plugin’s source code:
 git clone https://github.com/duydo/elasticsearch-analysis-vietnamese.git
 ```
 
-Edit the `elasticsearch-analysis-vietnamese/pom.xml` to change the version of Elasticsearch (same as plugin version) you want to build the plugin with:
+Optionally, edit the `elasticsearch-analysis-vietnamese/pom.xml` to change the version of Elasticsearch (same as plugin version) you want to build the plugin with:
 
 ```xml
 ...
-<groupId>org.elasticsearch</groupId>
-<artifactId>elasticsearch-analysis-vietnamese</artifactId>
 <version>7.17.1</version>
 ...
  ```
@@ -104,46 +149,71 @@ mvn package
 ### Step 3: Installation the plugin on Elasticsearch
 
 ```sh
-bin/elasticsearch-plugin install file://target/releases/elasticsearch-analysis-vietnamese-7.11.2.zip
+bin/elasticsearch-plugin install file://target/releases/elasticsearch-analysis-vietnamese-7.17.1.zip
 ```
 
 ## Compatible Versions
+From v7.12.11, the plugin uses CocCoc C++ tokenizer instead of the VnTokenizer by Lê Hồng Phương,
+I don't maintain the plugin with the VnTokenizer anymore, if you want to continue developing with it, refer [the branch vntokenizer](https://github.com/duydo/elasticsearch-analysis-vietnamese/tree/vntokenizer).  
 
-From version 7.12.11, the plugin uses CocCoc C++ tokenizer instead of the VnTokenizer library (by Lê Hồng Phương),
-I won't maintain the plugin with the VnTokenizer anymore. If you want to continue developing with it, you can check branch [vntokenizer](https://github.com/duydo/elasticsearch-analysis-vietnamese/tree/vntokenizer).  
+| Vietnamese Analysis Plugin | Elasticsearch   |
+| -------------------------- |-----------------|
+| master                     | 7.16 ~ 7.17.1   |
+| 7.12.1                     | 7.12.1 ~ 7.15.x |     
+| 7.3.1                      | 7.3.1           |   
+| 5.6.5                      | 5.6.5           |
+| 5.4.1                      | 5.4.1           |
+| 5.3.1                      | 5.3.1           |
+| 5.2.1                      | 5.2.1           |
+| 2.4.1                      | 2.4.1           |
+| 2.4.0                      | 2.4.0           |
+| 2.3.5                      | 2.3.5           |
+| 2.3.4                      | 2.3.4           |
+| 2.3.3                      | 2.3.3           |
+| 2.3.2                      | 2.3.2           |
+| 2.3.1                      | 2.3.1           |
+| 2.3.0                      | 2.3.0           |
+| 0.2.2                      | 2.2.0           |
+| 0.2.1.1                    | 2.1.1           |
+| 0.2.1                      | 2.1.0           |
+| 0.2                        | 2.0.0           |
+| 0.1.7                      | 1.7+            |
+| 0.1.6                      | 1.6+            |
+| 0.1.5                      | 1.5+            |
+| 0.1.1                      | 1.4+            |
+| 0.1                        | 1.3             |
 
-If you want to use the plugin with prior versions of Elasticsearch, you can build the plugin yourself with above guide. 
 
-| Vietnamese Analysis Plugin | Elasticsearch |
-| -------------------------- | ------------- |
-| master                     | 7.16~7.17     |
-| 7.12.1                     | 7.12.1~7.15.x |     
-| 7.3.1                      | 7.3.1         |   
-| 5.6.5                      | 5.6.5         |
-| 5.4.1                      | 5.4.1         |
-| 5.3.1                      | 5.3.1         |
-| 5.2.1                      | 5.2.1         |
-| 2.4.1                      | 2.4.1         |
-| 2.4.0                      | 2.4.0         |
-| 2.3.5                      | 2.3.5         |
-| 2.3.4                      | 2.3.4         |
-| 2.3.3                      | 2.3.3         |
-| 2.3.2                      | 2.3.2         |
-| 2.3.1                      | 2.3.1         |
-| 2.3.0                      | 2.3.0         |
-| 0.2.2                      | 2.2.0         |
-| 0.2.1.1                    | 2.1.1         |
-| 0.2.1                      | 2.1.0         |
-| 0.2                        | 2.0.0         |
-| 0.1.7                      | 1.7+          |
-| 0.1.6                      | 1.6+          |
-| 0.1.5                      | 1.5+          |
-| 0.1.1                      | 1.4+          |
-| 0.1                        | 1.3           |
+## Issues
+
+You might get errors during starting Elasticsearch with the plugin
+
+**1. Error: java.lang.UnsatisfiedLinkError: no libcoccoc_tokenizer_jni in java.library.path ...** (reported in [102](https://github.com/duydo/elasticsearch-analysis-vietnamese/issues/102))
+
+It happens because of your JVM cannot find the dynamic lib `libcoccoc_tokenizer_jni` in `java.library.path`, try to resolve by doing one of following options:
+- Appending `/usr/local/lib` into environment variable  `LD_LIBRARY_PATH`:
+```sh
+export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+```
+- Making a symbolic link or copying the file `/usr/local/lib/libcoccoc_tokenizer_jni.so` to `/usr/lib` :
+```sh
+# Make link
+ln -sf /usr/local/lib/libcoccoc_tokenizer_jni.so /usr/lib/libcoccoc_tokenizer_jni.so
+
+# Copy 
+cp /usr/local/lib/libcoccoc_tokenizer_jni.so /usr/lib
+```
+
+**2. Error: Cannot initialize Tokenizer: /usr/local/share/tokenizer/dicts** (reported in [106](https://github.com/duydo/elasticsearch-analysis-vietnamese/issues/106))
+
+It happens because of the tokenizer cannot find the dictionary files under `/usr/local/share/tokenizer/dicts`. 
+Ensure the path `/usr/local/share/tokenizer/dicts` existed and includes those files: alphabetic, i_and_y.txt, nontone_pair_freq_map.dump, syllable_trie.dump
+d_and_gi.txt, multiterm_trie.dump, numeric. If not, try to build the C++ tokenizer (Step 1) again.
+
 
 ## Thanks to
 - [JetBrains](https://www.jetbrains.com) has provided a free license for [IntelliJ IDEA](https://www.jetbrains.com/idea).
-- [CocCoc](https://coccoc.com) team has provided their C++ Vietnamese tokenizer library as open source.
+- [CocCoc team](https://coccoc.com) has provided their C++ Vietnamese tokenizer library as open source.
 
 ## License
     
