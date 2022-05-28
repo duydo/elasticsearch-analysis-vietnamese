@@ -1,6 +1,7 @@
 package com.coccoc;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -64,61 +65,33 @@ public class Tokenizer {
     }
 
     public List<Token> segment(String text, TokenizeOption option, boolean keepPunctuation) {
-        return segment(text, option, keepPunctuation, false);
-    }
-
-    public List<Token> segment(String text, TokenizeOption option, boolean keepPunctuation, boolean forTransforming) {
-        return segment(text, forTransforming, option.value(), keepPunctuation);
-    }
-
-    private List<Token> segment(String text, boolean forTransforming, int tokenizeOption, boolean keepPunctuation) {
         if (text == null) {
             throw new IllegalArgumentException("text is null");
         }
-        long resPointer = segmentPointer(text, forTransforming, tokenizeOption, keepPunctuation);
+        long resPointer = segmentPointer(text, false, option.value(), keepPunctuation);
 
-        final List<Token> res = new ArrayList<>();
+        final List<Token> tokens = new ArrayList<>();
         // Positions from JNI implementation .cpp file
-        long normalizedStringPointer = Unsafe.UNSAFE.getLong(resPointer + 8);
         int rangesSize = (int) Unsafe.UNSAFE.getLong(resPointer + 8 * 2);
         long rangesDataPointer = Unsafe.UNSAFE.getLong(resPointer + 8 * 3);
-
-        int spacePositionsSize = (int) Unsafe.UNSAFE.getLong(resPointer + 8 * 5);
-        long spacePositionsDataPointer = Unsafe.UNSAFE.getLong(resPointer + 8 * 6);
-        int[] spacePositions = new int[spacePositionsSize + 1];
-        for (int i = 0; i < spacePositionsSize; ++i) {
-            spacePositions[i] = Unsafe.UNSAFE.getInt(spacePositionsDataPointer + i * 4);
-        }
-        spacePositions[spacePositionsSize] = -1;
-
         int tokenSize = 4 * 6;
         for (int i = 0, spacePos = 0; i < rangesSize; ++i) {
             // Positions of UNSAFE values are calculated from {struct Token} in tokenizer.hpp
-            int startPos = Unsafe.UNSAFE.getInt(rangesDataPointer + i * tokenSize);
-            int endPos = Unsafe.UNSAFE.getInt(rangesDataPointer + i * tokenSize + 4);
             int originalStartPos = Unsafe.UNSAFE.getInt(rangesDataPointer + i * tokenSize + 8);
             int originalEndPos = Unsafe.UNSAFE.getInt(rangesDataPointer + i * tokenSize + 12);
             int type = Unsafe.UNSAFE.getInt(rangesDataPointer + i * tokenSize + 16);
             int segType = Unsafe.UNSAFE.getInt(rangesDataPointer + i * tokenSize + 20);
 
             // Build substring from UNSAFE array of codepoints
-            // TODO: Is there a faster way than using StringBuilder?
             final StringBuilder sb = new StringBuilder();
-            for (int j = startPos; j < endPos; ++j) {
-                if (j == spacePositions[spacePos]) {
-                    sb.append(forTransforming ? UNDERSCORE : SPACE);
-                    spacePos++;
-                }
-                sb.appendCodePoint(Unsafe.UNSAFE.getInt(normalizedStringPointer + j * 4));
+            for (int j = originalStartPos; j < originalEndPos; ++j) {
+                sb.appendCodePoint(text.charAt(j));
             }
-            res.add(new Token(segType == 1 ? sb.toString().replace(COMMA, DOT) : sb.toString(),
+            tokens.add(new Token(segType == 1 ? sb.toString().replace(COMMA, DOT) : sb.toString(),
                     Token.Type.fromInt(type), Token.SegType.fromInt(segType), originalStartPos, originalEndPos));
         }
-        if (forTransforming && tokenizeOption == TokenizeOption.NORMAL.value()) {
-            res.add(Token.FULL_STOP);
-        }
         freeMemory(resPointer);
-        return res;
+        return tokens;
     }
 
 
