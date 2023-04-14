@@ -108,6 +108,28 @@ The above example produces the following terms:
 
 ```
 
+## Use Docker
+
+Make sure you have installed both Docker & docker-compose as well
+
+### Use Docker Compose
+
+```bash
+# build the image
+cp .env.sample .env
+docker compose build
+docker compose up
+
+# test
+curl -k http://elastic:changemenow@localhost:9200/_analyze -H 'Content-Type: application/json' -d '
+{
+  "analyzer": "vi_analyzer",
+  "text": "Cộng hòa Xã hội chủ nghĩa Việt Nam"
+}'
+# example result
+{"tokens":[{"token":"cộng hòa","start_offset":0,"end_offset":8,"type":"<WORD>","position":0},{"token":"xã hội","start_offset":9,"end_offset":15,"type":"<WORD>","position":1},{"token":"chủ nghĩa","start_offset":16,"end_offset":25,"type":"<WORD>","position":2},{"token":"việt nam","start_offset":26,"end_offset":34,"type":"<WORD>","position":3}]}                                                                                     
+```
+
 ## Build from Source
 ### Step 1: Build C++ tokenizer for Vietnamese library
 ```sh
@@ -136,7 +158,7 @@ Optionally, edit the `elasticsearch-analysis-vietnamese/pom.xml` to change the v
 
 ```xml
 ...
-<version>7.17.1</version>
+<version>8.3.3</version>
 ...
  ```
 
@@ -149,7 +171,7 @@ mvn package
 ### Step 3: Installation the plugin on Elasticsearch
 
 ```sh
-bin/elasticsearch-plugin install file://target/releases/elasticsearch-analysis-vietnamese-7.17.1.zip
+bin/elasticsearch-plugin install file://target/releases/elasticsearch-analysis-vietnamese-8.3.3.zip
 ```
 
 ## Compatible Versions
