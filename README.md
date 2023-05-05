@@ -121,7 +121,7 @@ docker compose build
 docker compose up
 
 # test
-curl -k http://elastic:changemenow@localhost:9200/_analyze -H 'Content-Type: application/json' -d '
+curl -k http://elastic:changeme@localhost:9200/_analyze -H 'Content-Type: application/json' -d '
 {
   "analyzer": "vi_analyzer",
   "text": "Cộng hòa Xã hội chủ nghĩa Việt Nam"
