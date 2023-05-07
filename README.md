@@ -143,7 +143,7 @@ By default, the `make install` installs:
 - the dynamic lib (`libcoccoc_tokenizer_jni.so`) under `/usr/local/lib/`. The plugin uses this lib directly.
 - the dictionary files under `/usr/local/share/tokenizer/dicts`. The plugin uses this path for `dict_path` by default.
 
-Refer [the repo](https://github.com/coccoc/coccoc-tokenizer) for more information to build the library.
+Refer [the repo](https://github.com/duydo/coccoc-tokenizer) for more information to build the library.
 
 
 ### Step 2: Build the plugin
