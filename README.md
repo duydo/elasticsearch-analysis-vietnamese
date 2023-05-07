@@ -133,7 +133,7 @@ curl -k http://elastic:changeme@localhost:9200/_analyze -H 'Content-Type: applic
 ## Build from Source
 ### Step 1: Build C++ tokenizer for Vietnamese library
 ```sh
-git clone https://github.com/coccoc/coccoc-tokenizer.git
+git clone https://github.com/duydo/coccoc-tokenizer.git
 cd coccoc-tokenizer && mkdir build && cd build
 cmake -DBUILD_JAVA=1 ..
 make install
