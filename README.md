@@ -108,20 +108,52 @@ The above example produces the following terms:
 
 ```
 
+## Use Docker
+
+Make sure you have installed both Docker & docker-compose
+
+### Build the image with Docker Compose
+
+```sh
+# Copy, edit ES version and password for user elastic in file .env. Default password: changeme
+cp .env.sample .env
+docker compose build
+docker compose up
+```
+### Verify
+```sh
+curl -k http://elastic:changeme@localhost:9200/_analyze -H 'Content-Type: application/json' -d '
+{
+  "analyzer": "vi_analyzer",
+  "text": "Cộng hòa Xã hội chủ nghĩa Việt Nam"
+}'
+
+# Output
+{"tokens":[{"token":"cộng hòa","start_offset":0,"end_offset":8,"type":"<WORD>","position":0},{"token":"xã hội","start_offset":9,"end_offset":15,"type":"<WORD>","position":1},{"token":"chủ nghĩa","start_offset":16,"end_offset":25,"type":"<WORD>","position":2},{"token":"việt nam","start_offset":26,"end_offset":34,"type":"<WORD>","position":3}]}                                                                                     
+```
+
 ## Build from Source
 ### Step 1: Build C++ tokenizer for Vietnamese library
 ```sh
-git clone https://github.com/coccoc/coccoc-tokenizer.git
+git clone https://github.com/duydo/coccoc-tokenizer.git
 cd coccoc-tokenizer && mkdir build && cd build
 cmake -DBUILD_JAVA=1 ..
 make install
+# Link the coccoc shared lib to /usr/lib
+sudo ln -sf /usr/local/lib/libcoccoc_tokenizer_jni.* /usr/lib/
 ```
 By default, the `make install` installs:
-- the lib commands (`tokenizer`, `dict_compiler` and `vn_lang_tool`) under `/usr/local/bin`
-- the dynamic lib (`libcoccoc_tokenizer_jni.so`) under `/usr/local/lib/`. The plugin uses this lib directly.
-- the dictionary files under `/usr/local/share/tokenizer/dicts`. The plugin uses this path for `dict_path` by default.
+- The lib commands `tokenizer`, `dict_compiler` and `vn_lang_tool` under `/usr/local/bin`
+- The dynamic lib `libcoccoc_tokenizer_jni.so` under `/usr/local/lib/`. The plugin uses this lib directly.
+- The dictionary files under `/usr/local/share/tokenizer/dicts`. The plugin uses this path for `dict_path` by default.
 
-Refer [the repo](https://github.com/coccoc/coccoc-tokenizer) for more information to build the library.
+Verify
+```sh
+/usr/local/bin/tokenizer "Cộng hòa Xã hội chủ nghĩa Việt Nam"
+# cộng hòa	xã hội	chủ nghĩa	việt nam
+```
+
+Refer [the repo](https://github.com/duydo/coccoc-tokenizer) for more information to build the library.
 
 
 ### Step 2: Build the plugin
@@ -136,7 +168,7 @@ Optionally, edit the `elasticsearch-analysis-vietnamese/pom.xml` to change the v
 
 ```xml
 ...
-<version>7.17.1</version>
+<version>8.7.0</version>
 ...
  ```
 
@@ -149,7 +181,7 @@ mvn package
 ### Step 3: Installation the plugin on Elasticsearch
 
 ```sh
-bin/elasticsearch-plugin install file://target/releases/elasticsearch-analysis-vietnamese-7.17.1.zip
+bin/elasticsearch-plugin install file://target/releases/elasticsearch-analysis-vietnamese-8.7.0.zip
 ```
 
 ## Compatible Versions
@@ -157,8 +189,11 @@ From v7.12.11, the plugin uses CocCoc C++ tokenizer instead of the VnTokenizer b
 I don't maintain the plugin with the VnTokenizer anymore, if you want to continue developing with it, refer [the branch vntokenizer](https://github.com/duydo/elasticsearch-analysis-vietnamese/tree/vntokenizer).  
 
 | Vietnamese Analysis Plugin | Elasticsearch   |
-| -------------------------- |-----------------|
-| master                     | 7.16 ~ 7.17.1   |
+|----------------------------|-----------------|
+| master                     | 8.7.0           |
+| develop                    | 8.7.0           |
+| 8.7.0                      | 8.7.0           |
+| 7.16.1                     | 7.16 ~ 7.17.1   |
 | 7.12.1                     | 7.12.1 ~ 7.15.x |     
 | 7.3.1                      | 7.3.1           |   
 | 5.6.5                      | 5.6.5           |
