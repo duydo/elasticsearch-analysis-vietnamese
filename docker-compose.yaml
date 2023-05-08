@@ -2,21 +2,24 @@ version: '3.4'
 
 services:
   elasticsearch:
-    build: .
+    build:
+      context: .
+      args:
+        ES_VERSION: ${ES_VERSION}
     restart: on-failure
     ports:
       - "9200:9200"
     ulimits:
       nofile:
-         soft: 65536
-         hard: 65536
+        soft: 65536
+        hard: 65536
       memlock:
         hard: -1
         soft: -1
     environment:
       ES_JAVA_OPTS: "-Xmx2g -Xms2g"
       ELASTIC_USERNAME: "elastic"
-      ELASTIC_PASSWORD: "changeme"
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
       bootstrap.memory_lock: "true"
       discovery.type: "single-node"
       xpack.security.enabled: "true"

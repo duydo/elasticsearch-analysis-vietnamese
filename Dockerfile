@@ -1,48 +1,44 @@
-ARG ES_VERSION=8.3.3
-ARG DEBIAN_FRONTEND=noninteractive
-
-# thanks to https://github.com/cpfriend1721994/docker-es-cococ-tokenizer
-FROM docker.elastic.co/elasticsearch/elasticsearch:$ES_VERSION as builder
 ARG ES_VERSION
-ARG DEBIAN_FRONTEND
+FROM docker.elastic.co/elasticsearch/elasticsearch:$ES_VERSION as builder
+
 USER root
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update -y && apt-get install -y software-properties-common build-essential
 RUN gcc --version
-RUN apt-get update -y && \
-    apt-get install -y make cmake pkg-config wget git openjdk-17-jdk
-ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+RUN apt-get update -y && apt-get install -y make cmake pkg-config wget git
 
-RUN cd /tmp && wget https://dlcdn.apache.org/maven/maven-3/3.8.8/binaries/apache-maven-3.8.8-bin.tar.gz && \
-tar xvf apache-maven-3.8.8-bin.tar.gz && \
-mkdir -p /usr/share/maven && cd /usr/share/maven && \
-cp -r /tmp/apache-maven-3.8.8/* .
-ENV PATH=/usr/share/maven/bin:$PATH
+ENV JAVA_HOME=/usr/share/elasticsearch/jdk
+ENV PATH=$JAVA_HOME/bin:$PATH
 
-WORKDIR /
-
-COPY pom.xml .
-RUN mvn verify clean --fail-never
-
-RUN git clone https://github.com/coccoc/coccoc-tokenizer.git
-
-RUN mkdir /coccoc-tokenizer/build
-WORKDIR /coccoc-tokenizer/build
+# Build coccoc-tokenizer
+RUN echo "Build coccoc-tokenizer..."
+WORKDIR /tmp
+RUN git clone https://github.com/duydo/coccoc-tokenizer.git
+RUN mkdir /tmp/coccoc-tokenizer/build
+WORKDIR /tmp/coccoc-tokenizer/build
 RUN cmake -DBUILD_JAVA=1 ..
 RUN make install
 
-COPY . /elasticsearch-analysis-vietnamese
-WORKDIR /elasticsearch-analysis-vietnamese
-RUN mvn package -Dmaven.test.skip -e
+# Build analysis-vietnamese
+RUN echo "analysis-vietnamese..."
+WORKDIR /tmp
+RUN wget https://dlcdn.apache.org/maven/maven-3/3.8.8/binaries/apache-maven-3.8.8-bin.tar.gz \
+    && tar xvf apache-maven-3.8.8-bin.tar.gz
+ENV MVN_HOME=/tmp/apache-maven-3.8.8
+ENV PATH=$MVN_HOME/bin:$PATH
+
+COPY . /tmp/elasticsearch-analysis-vietnamese
+WORKDIR /tmp/elasticsearch-analysis-vietnamese
+RUN mvn verify clean --fail-never
+RUN mvn --batch-mode -Dmaven.test.skip -e package
 
 FROM docker.elastic.co/elasticsearch/elasticsearch:$ES_VERSION
 ARG ES_VERSION
+ARG COCCOC_INSTALL_PATH=/usr/local
+ARG COCCOC_DICT_PATH=$COCCOC_INSTALL_PATH/share/tokenizer/dicts
 
-COPY --from=builder /coccoc-tokenizer/dicts/tokenizer /usr/local/share/tokenizer/dicts
-COPY --from=builder /coccoc-tokenizer/dicts/vn_lang_tool /usr/local/share/tokenizer/dicts
-COPY --from=builder /coccoc-tokenizer/build/libcoccoc_tokenizer_jni.so /usr/lib
-COPY --from=builder /coccoc-tokenizer/build/multiterm_trie.dump /usr/local/share/tokenizer/dicts
-COPY --from=builder /coccoc-tokenizer/build/nontone_pair_freq_map.dump /usr/local/share/tokenizer/dicts
-COPY --from=builder /coccoc-tokenizer/build/syllable_trie.dump /usr/local/share/tokenizer/dicts
-COPY --from=builder /elasticsearch-analysis-vietnamese/target/releases/elasticsearch-analysis-vietnamese-$ES_VERSION.zip /
+COPY --from=builder $COCCOC_INSTALL_PATH/lib/libcoccoc_tokenizer_jni.so /usr/lib
+COPY --from=builder $COCCOC_DICT_PATH $COCCOC_DICT_PATH
+COPY --from=builder /tmp/elasticsearch-analysis-vietnamese/target/releases/elasticsearch-analysis-vietnamese-$ES_VERSION.zip /
 RUN echo "Y" | /usr/share/elasticsearch/bin/elasticsearch-plugin install --batch file:///elasticsearch-analysis-vietnamese-$ES_VERSION.zip
