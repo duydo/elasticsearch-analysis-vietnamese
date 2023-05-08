@@ -19,7 +19,7 @@ public class VietnameseStopTokenFilterFactory extends AbstractTokenFilterFactory
     private final CharArraySet stopWords;
 
     public VietnameseStopTokenFilterFactory(IndexSettings indexSettings, Environment env, String name, Settings settings) {
-        super(indexSettings, name, settings);
+        super(name, settings);
         stopWords = Analysis.parseStopWords(env, settings, VietnameseAnalyzer.getDefaultStopSet());
     }
 

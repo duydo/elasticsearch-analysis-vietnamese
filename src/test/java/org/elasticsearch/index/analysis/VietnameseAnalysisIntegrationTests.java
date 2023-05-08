@@ -5,11 +5,13 @@ import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
 import org.elasticsearch.action.admin.cluster.node.info.PluginsAndModules;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeAction;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.plugins.PluginRuntimeInfo;
+import org.elasticsearch.test.ESIntegTestCase.ClusterScope;
 import org.elasticsearch.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.plugin.analysis.vi.AnalysisVietnamesePlugin;
 import org.elasticsearch.plugins.Plugin;
-import org.elasticsearch.plugins.PluginDescriptor;
+
 import org.elasticsearch.test.ESIntegTestCase;
 
 import java.io.IOException;
@@ -17,6 +19,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 
+import static org.elasticsearch.test.ESIntegTestCase.Scope.TEST;
 import static org.elasticsearch.xcontent.XContentFactory.jsonBuilder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -24,6 +27,7 @@ import static org.hamcrest.Matchers.notNullValue;
 /**
  * Created by duydo on 2/20/17.
  */
+@ClusterScope(supportsDedicatedMasters=false, numDataNodes=1, numClientNodes=0)
 public class VietnameseAnalysisIntegrationTests extends ESIntegTestCase {
     @Override
     protected Collection<Class<? extends Plugin>> nodePlugins() {
@@ -34,8 +38,8 @@ public class VietnameseAnalysisIntegrationTests extends ESIntegTestCase {
         NodesInfoResponse response = client().admin().cluster().prepareNodesInfo().get();
         for (NodeInfo nodeInfo : response.getNodes()) {
             boolean pluginFound = false;
-            for (PluginDescriptor pluginInfo : nodeInfo.getInfo(PluginsAndModules.class).getPluginInfos()) {
-                if (pluginInfo.getName().equals(AnalysisVietnamesePlugin.class.getName())) {
+            for (PluginRuntimeInfo pluginInfo : nodeInfo.getInfo(PluginsAndModules.class).getPluginInfos()) {
+                if (pluginInfo.descriptor().getName().equals(AnalysisVietnamesePlugin.class.getName())) {
                     pluginFound = true;
                     break;
                 }
@@ -62,25 +66,25 @@ public class VietnameseAnalysisIntegrationTests extends ESIntegTestCase {
         ensureGreen("test");
         final XContentBuilder mapping = jsonBuilder()
                 .startObject()
-                    .startObject("_doc")
-                        .startObject("properties")
-                            .startObject("foo")
-                                .field("type", "text")
-                                .field("analyzer", "vi_analyzer")
-                            .endObject()
-                        .endObject()
-                    .endObject()
+                .startObject("_doc")
+                .startObject("properties")
+                .startObject("foo")
+                .field("type", "text")
+                .field("analyzer", "vi_analyzer")
+                .endObject()
+                .endObject()
+                .endObject()
                 .endObject();
-        client().admin().indices().preparePutMapping("test").setType("_doc").setSource(mapping).get();
+        client().admin().indices().preparePutMapping("test").setSource(mapping).get();
         final XContentBuilder source = jsonBuilder()
                 .startObject()
-                    .field("foo", "công nghệ thông tin Việt Nam")
+                .field("foo", "công nghệ thông tin Việt Nam")
                 .endObject();
-        index("test", "_doc", "1", source);
+        index("test", "1", source);
         refresh();
         SearchResponse response = client().prepareSearch("test").
                 setQuery(
-                    QueryBuilders.matchQuery("foo", "công nghệ thông tin")
+                        QueryBuilders.matchQuery("foo", "công nghệ thông tin")
                 ).execute().actionGet();
         assertThat(response.getHits().getTotalHits().toString(), is("1 hits"));
     }
