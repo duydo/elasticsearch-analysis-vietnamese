@@ -6,6 +6,7 @@ import org.elasticsearch.action.admin.cluster.node.info.PluginsAndModules;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeAction;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.plugins.PluginRuntimeInfo;
+import org.elasticsearch.test.ESIntegTestCase.ClusterScope;
 import org.elasticsearch.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.plugin.analysis.vi.AnalysisVietnamesePlugin;
@@ -18,6 +19,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 
+import static org.elasticsearch.test.ESIntegTestCase.Scope.TEST;
 import static org.elasticsearch.xcontent.XContentFactory.jsonBuilder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -25,6 +27,7 @@ import static org.hamcrest.Matchers.notNullValue;
 /**
  * Created by duydo on 2/20/17.
  */
+@ClusterScope(supportsDedicatedMasters=false, numDataNodes=1, numClientNodes=0)
 public class VietnameseAnalysisIntegrationTests extends ESIntegTestCase {
     @Override
     protected Collection<Class<? extends Plugin>> nodePlugins() {
