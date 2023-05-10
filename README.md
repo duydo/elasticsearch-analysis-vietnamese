@@ -115,7 +115,10 @@ git clone https://github.com/coccoc/coccoc-tokenizer.git
 cd coccoc-tokenizer && mkdir build && cd build
 cmake -DBUILD_JAVA=1 ..
 make install
+# Link the coccoc shared lib to /usr/lib
+sudo ln -sf /usr/local/lib/libcoccoc_tokenizer_jni.* /usr/lib/
 ```
+
 By default, the `make install` installs:
 - the lib commands (`tokenizer`, `dict_compiler` and `vn_lang_tool`) under `/usr/local/bin`
 - the dynamic lib (`libcoccoc_tokenizer_jni.so`) under `/usr/local/lib/`. The plugin uses this lib directly.
@@ -157,8 +160,8 @@ From v7.12.11, the plugin uses CocCoc C++ tokenizer instead of the VnTokenizer b
 I don't maintain the plugin with the VnTokenizer anymore, if you want to continue developing with it, refer [the branch vntokenizer](https://github.com/duydo/elasticsearch-analysis-vietnamese/tree/vntokenizer).  
 
 | Vietnamese Analysis Plugin | Elasticsearch   |
-| -------------------------- |-----------------|
-| master                     | 7.16 ~ 7.17.1   |
+|----------------------------|-----------------|
+| 7.16-7.17.1                | 7.16.0 ~ 7.17.1 |
 | 7.12.1                     | 7.12.1 ~ 7.15.x |     
 | 7.3.1                      | 7.3.1           |   
 | 5.6.5                      | 5.6.5           |

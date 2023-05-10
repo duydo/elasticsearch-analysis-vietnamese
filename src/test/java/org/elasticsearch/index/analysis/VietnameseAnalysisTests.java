@@ -10,6 +10,7 @@ import org.elasticsearch.cluster.metadata.IndexMetadata;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.env.Environment;
 import org.elasticsearch.plugin.analysis.vi.AnalysisVietnamesePlugin;
+import org.elasticsearch.test.ESSingleNodeTestCase;
 import org.elasticsearch.test.ESTestCase;
 
 import java.io.IOException;
@@ -22,7 +23,7 @@ import static org.hamcrest.Matchers.instanceOf;
 /**
  * Created by duydo on 2/19/17.
  */
-public class VietnameseAnalysisTests extends ESTestCase {
+public class VietnameseAnalysisTests extends ESSingleNodeTestCase {
 
     public void testVietnameseAnalysis() throws IOException {
         TestAnalysis analysis = createTestAnalysis(Settings.EMPTY);
