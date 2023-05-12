@@ -11,6 +11,7 @@ import org.elasticsearch.plugin.analysis.vi.AnalysisVietnamesePlugin;
 import org.elasticsearch.plugins.Plugin;
 import org.elasticsearch.plugins.PluginDescriptor;
 import org.elasticsearch.test.ESIntegTestCase;
+import org.elasticsearch.test.ESIntegTestCase.ClusterScope;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -24,6 +25,7 @@ import static org.hamcrest.Matchers.notNullValue;
 /**
  * Created by duydo on 2/20/17.
  */
+@ClusterScope(numDataNodes = 1, numClientNodes = 0)
 public class VietnameseAnalysisIntegrationTests extends ESIntegTestCase {
     @Override
     protected Collection<Class<? extends Plugin>> nodePlugins() {

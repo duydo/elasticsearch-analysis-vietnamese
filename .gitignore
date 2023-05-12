@@ -40,3 +40,4 @@ target/
 /bin/
 .env
 *.iml
+.vscode
