@@ -168,7 +168,7 @@ Optionally, edit the `elasticsearch-analysis-vietnamese/pom.xml` to change the v
 
 ```xml
 ...
-<version>8.7.0</version>
+<version>7.17.10</version>
 ...
  ```
 
@@ -193,6 +193,7 @@ I don't maintain the plugin with the VnTokenizer anymore, if you want to continu
 | master                     | 8.7.0           |
 | develop                    | 8.7.0           |
 | 8.7.0                      | 8.7.0           |
+| 7.17.5-7.17.10             | 7.17.5 ~ 7.17.10|
 | 7.16.1                     | 7.16 ~ 7.17.1   |
 | 7.12.1                     | 7.12.1 ~ 7.15.x |     
 | 7.3.1                      | 7.3.1           |   
