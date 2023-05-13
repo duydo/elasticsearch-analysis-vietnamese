@@ -162,26 +162,26 @@ Clone the plugin’s source code:
 
 ```sh
 git clone https://github.com/duydo/elasticsearch-analysis-vietnamese.git
+cd elasticsearch-analysis-vietnamese
+git checkout 8.4.0
 ```
 
-Optionally, edit the `elasticsearch-analysis-vietnamese/pom.xml` to change the version of Elasticsearch (same as plugin version) you want to build the plugin with:
+Optionally, edit the `pom.xml` to change the version of Elasticsearch (same as plugin version) you want to build the plugin with:
 
 ```xml
 ...
-<version>8.7.0</version>
+<version>8.4.0</version>
 ...
  ```
-
 Build the plugin:
 ```sh
-cd elasticsearch-analysis-vietnamese
 mvn package
 ```
 
 ### Step 3: Installation the plugin on Elasticsearch
 
 ```sh
-bin/elasticsearch-plugin install file://target/releases/elasticsearch-analysis-vietnamese-8.7.0.zip
+bin/elasticsearch-plugin install file://target/releases/elasticsearch-analysis-vietnamese-8.4.0.zip
 ```
 
 ## Compatible Versions
@@ -190,9 +190,7 @@ I don't maintain the plugin with the VnTokenizer anymore, if you want to continu
 
 | Vietnamese Analysis Plugin | Elasticsearch   |
 |----------------------------|-----------------|
-| master                     | 8.7.0           |
-| develop                    | 8.7.0           |
-| 8.7.0                      | 8.7.0           |
+| 8.4.0                      | 8.4.0 ~ 8.7.1   |
 | 7.16.1                     | 7.16 ~ 7.17.1   |
 | 7.12.1                     | 7.12.1 ~ 7.15.x |     
 | 7.3.1                      | 7.3.1           |   
