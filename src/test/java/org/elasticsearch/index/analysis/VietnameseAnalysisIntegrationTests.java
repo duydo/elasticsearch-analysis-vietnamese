@@ -5,7 +5,7 @@ import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
 import org.elasticsearch.action.admin.cluster.node.info.PluginsAndModules;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeAction;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.plugins.PluginRuntimeInfo;
+import org.elasticsearch.plugins.PluginInfo;
 import org.elasticsearch.test.ESIntegTestCase.ClusterScope;
 import org.elasticsearch.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -38,8 +38,8 @@ public class VietnameseAnalysisIntegrationTests extends ESIntegTestCase {
         NodesInfoResponse response = client().admin().cluster().prepareNodesInfo().get();
         for (NodeInfo nodeInfo : response.getNodes()) {
             boolean pluginFound = false;
-            for (PluginRuntimeInfo pluginInfo : nodeInfo.getInfo(PluginsAndModules.class).getPluginInfos()) {
-                if (pluginInfo.descriptor().getName().equals(AnalysisVietnamesePlugin.class.getName())) {
+            for (PluginInfo pluginInfo : nodeInfo.getInfo(PluginsAndModules.class).getPluginInfos()) {
+                if (pluginInfo.getName().equals(AnalysisVietnamesePlugin.class.getName())) {
                     pluginFound = true;
                     break;
                 }

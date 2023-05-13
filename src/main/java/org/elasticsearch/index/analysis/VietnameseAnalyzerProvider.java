@@ -30,7 +30,7 @@ public class VietnameseAnalyzerProvider extends AbstractIndexAnalyzerProvider<Vi
     private final VietnameseAnalyzer analyzer;
 
     public VietnameseAnalyzerProvider(IndexSettings indexSettings, Environment env, String name, Settings settings) {
-        super(name, settings);
+        super(indexSettings, name, settings);
         final CharArraySet stopWords = Analysis.parseStopWords(env, settings, VietnameseAnalyzer.getDefaultStopSet());
         analyzer = new VietnameseAnalyzer(new VietnameseConfig(settings), stopWords);
     }

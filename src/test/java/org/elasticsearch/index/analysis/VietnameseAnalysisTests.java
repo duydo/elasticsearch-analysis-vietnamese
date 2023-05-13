@@ -15,7 +15,7 @@ import org.elasticsearch.test.ESSingleNodeTestCase;
 import java.io.IOException;
 import java.io.StringReader;
 
-import static org.apache.lucene.tests.analysis.BaseTokenStreamTestCase.assertTokenStreamContents;
+import static org.apache.lucene.analysis.BaseTokenStreamTestCase.assertTokenStreamContents;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 
