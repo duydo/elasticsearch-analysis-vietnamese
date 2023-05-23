@@ -193,6 +193,8 @@ I don't maintain the plugin with the VnTokenizer anymore, if you want to continu
 | master                     | 8.7.0           |
 | develop                    | 8.7.0           |
 | 8.7.0                      | 8.7.0           |
+| 8.4.0                      | 8.4.0 ~ 8.7.1   |
+| 8.0.0                      | 8.0.0 ~ 8.0.x   |
 | 7.16.1                     | 7.16 ~ 7.17.1   |
 | 7.12.1                     | 7.12.1 ~ 7.15.x |     
 | 7.3.1                      | 7.3.1           |   
