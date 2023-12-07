@@ -28,10 +28,11 @@ RUN wget https://dlcdn.apache.org/maven/maven-3/3.8.8/binaries/apache-maven-3.8.
 ENV MVN_HOME=/tmp/apache-maven-3.8.8
 ENV PATH=$MVN_HOME/bin:$PATH
 
+ARG ES_VERSION
 COPY . /tmp/elasticsearch-analysis-vietnamese
 WORKDIR /tmp/elasticsearch-analysis-vietnamese
 RUN mvn verify clean --fail-never
-RUN mvn --batch-mode -Dmaven.test.skip -e package
+RUN mvn --batch-mode -Dmaven.test.skip -e package -DprojectVersion=$ES_VERSION
 
 FROM docker.elastic.co/elasticsearch/elasticsearch:$ES_VERSION
 ARG ES_VERSION
