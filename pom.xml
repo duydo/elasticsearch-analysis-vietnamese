@@ -33,7 +33,7 @@
         <project.build.java.version>1.8</project.build.java.version>
         <projectVersion>8.7.0</projectVersion>
         <elasticsearch.version>${project.version}</elasticsearch.version>
-        <log4j.version>2.17.2</log4j.version>
+        <log4j.version>2.25.3</log4j.version>
     </properties>
     <dependencies>
         <dependency>
