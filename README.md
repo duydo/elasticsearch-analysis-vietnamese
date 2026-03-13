@@ -207,7 +207,7 @@ I don't maintain the plugin with the VnTokenizer anymore, if you want to continu
 |----------------------------|-----------------|
 | master                     | 9.3.0           |
 | develop                    | 9.3.0           |
-| 9.3.0                      | 9.0.0 ~ 9.3.0           |
+| 9.3.0                      | 9.0.0 ~ 9.3.0   |
 | 8.7.0                      | 8.7.0           |
 | 8.4.0                      | 8.4.0 ~ 8.7.1   |
 | 8.0.0                      | 8.0.0 ~ 8.0.x   |
