@@ -79,6 +79,9 @@
                 <version>3.13.0</version>
                 <configuration>
                     <release>21</release>
+                    <compilerArgs>
+                        <arg>--enable-preview</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
             <plugin>
@@ -114,35 +117,20 @@
                 </executions>
             </plugin>
             <plugin>
-                <!-- Skip surefire to use randomized testing via junit4 plugin -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.5.2</version>
                 <configuration>
-                    <skipTests>true</skipTests>
+                    <!-- Allow ES native provider to load via Panama/FFM API (eliminates
+                         NativeAccess WARN + "restricted method" JVM warnings).
+                         Disable Netty's sun.misc.Unsafe usage so Java 21.0.10+ does not
+                         print the backported "terminally deprecated" Unsafe warnings.
+                         JUL config suppresses the Lucene vector-API warning before the
+                         ES test framework bridges JUL to log4j2.
+                         enable-preview required because Homebrew OpenJDK 21 still marks
+                         java.lang.foreign (FFM API) as a preview feature. -->
+                    <argLine>--enable-preview --enable-native-access=ALL-UNNAMED -Dio.netty.noUnsafe=true -Djava.util.logging.config.file=${project.basedir}/src/test/resources/jul-suppress.properties</argLine>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.carrotsearch.randomizedtesting</groupId>
-                <artifactId>junit4-maven-plugin</artifactId>
-                <version>2.8.2</version>
-                <configuration>
-                    <assertions enableSystemAssertions="false">
-                        <enable/>
-                    </assertions>
-                    <listeners>
-                        <report-text/>
-                    </listeners>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>unit-tests</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>junit4</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
