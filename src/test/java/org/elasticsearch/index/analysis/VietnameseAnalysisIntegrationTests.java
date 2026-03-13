@@ -66,12 +66,10 @@ public class VietnameseAnalysisIntegrationTests extends ESIntegTestCase {
         ensureGreen("test");
         final XContentBuilder mapping = jsonBuilder()
                 .startObject()
-                .startObject("_doc")
                 .startObject("properties")
                 .startObject("foo")
                 .field("type", "text")
                 .field("analyzer", "vi_analyzer")
-                .endObject()
                 .endObject()
                 .endObject()
                 .endObject();

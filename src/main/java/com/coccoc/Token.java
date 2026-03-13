@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class Token implements Cloneable {
-	public static Token FULL_STOP = new Token(".", Type.PUNCT, SegType.END_SEG_TYPE, -1, -1);
-	public static Token COMMA = new Token(",", Type.PUNCT, SegType.END_SEG_TYPE, -1, -1);
-	public static Token SPACE = new Token(" ", Type.SPACE, -1, -1);
+	public static final Token FULL_STOP = new Token(".", Type.PUNCT, SegType.END_SEG_TYPE, -1, -1);
+	public static final Token COMMA = new Token(",", Type.PUNCT, SegType.END_SEG_TYPE, -1, -1);
+	public static final Token SPACE = new Token(" ", Type.SPACE, -1, -1);
 
 	public enum Type {
 		WORD,
@@ -16,12 +16,9 @@ public final class Token implements Cloneable {
 		WHOLE_URL,
 		SITE_URL;
 
-		private static Type[] values = null;
+		private static final Type[] VALUES = Type.values();
 		public static Type fromInt(int i) {
-			if (Type.values == null) {
-				Type.values = Type.values();
-			}
-			return Type.values[i];
+			return VALUES[i];
 		}
 	}
 
@@ -32,12 +29,9 @@ public final class Token implements Cloneable {
 		END_URL_TYPE,
 		END_SEG_TYPE;
 
-		private static SegType[] values = null;
+		private static final SegType[] VALUES = SegType.values();
 		public static SegType fromInt(int i) {
-			if (SegType.values == null) {
-				SegType.values = SegType.values();
-			}
-			return SegType.values[i];
+			return VALUES[i];
 		}
 	}
 
@@ -57,7 +51,7 @@ public final class Token implements Cloneable {
 	}
 
 	public Token cloneWithNewText(String newText, int newEnd) {
-		return new Token(newText, type, segType, splittedByDot, startPos, endPos);
+		return new Token(newText, type, segType, splittedByDot, startPos, newEnd);
 	}
 
 	public Token(String text, Type type, SegType segType, int start, int end) {

@@ -24,6 +24,8 @@ import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 import org.elasticsearch.analysis.VietnameseConfig;
 
 import java.io.IOException;
+import java.util.EnumMap;
+import java.util.Map;
 
 /**
  * {@link Tokenizer} for Vietnamese language
@@ -31,6 +33,15 @@ import java.io.IOException;
  * @author duydo
  */
 public class VietnameseTokenizer extends Tokenizer {
+
+    private static final Map<Token.Type, String> TYPE_NAMES;
+
+    static {
+        TYPE_NAMES = new EnumMap<>(Token.Type.class);
+        for (Token.Type t : Token.Type.values()) {
+            TYPE_NAMES.put(t, "<" + t.name() + ">");
+        }
+    }
 
     private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
     private final OffsetAttribute offsetAtt = addAttribute(OffsetAttribute.class);
@@ -52,7 +63,7 @@ public class VietnameseTokenizer extends Tokenizer {
         final Token token = tokenizer.getNextToken();
         if (token != null) {
             posIncrAtt.setPositionIncrement(1);
-            typeAtt.setType(String.format("<%s>", token.getType()));
+            typeAtt.setType(TYPE_NAMES.getOrDefault(token.getType(), "<WORD>"));
             termAtt.copyBuffer(token.getText().toCharArray(), 0, token.getText().length());
             offsetAtt.setOffset(correctOffset(token.getPos()), offset = correctOffset(token.getEndPos()));
             return true;
