@@ -41,7 +41,7 @@ WORKDIR /tmp/elasticsearch-analysis-vietnamese
 
 # Copy POM first to cache dependency downloads separately from source changes
 COPY pom.xml .
-RUN mvn dependency:go-offline --batch-mode -q || true
+RUN mvn dependency:go-offline --batch-mode -q
 
 # Copy source and build
 COPY src/ src/
@@ -55,8 +55,13 @@ ARG ES_VERSION
 ARG COCCOC_INSTALL_PATH=/usr/local
 ARG COCCOC_DICT_PATH=$COCCOC_INSTALL_PATH/share/tokenizer/dicts
 
+USER root
 COPY --from=coccoc-builder $COCCOC_INSTALL_PATH/lib/libcoccoc_tokenizer_jni.so /usr/lib/
 COPY --from=coccoc-builder $COCCOC_DICT_PATH $COCCOC_DICT_PATH
-COPY --chown=1000:0 --from=plugin-builder /tmp/elasticsearch-analysis-vietnamese/target/releases/elasticsearch-analysis-vietnamese-$ES_VERSION.zip /tmp/
-RUN /usr/share/elasticsearch/bin/elasticsearch-plugin install --batch file:///tmp/elasticsearch-analysis-vietnamese-$ES_VERSION.zip && \
+COPY --from=plugin-builder \
+    /tmp/elasticsearch-analysis-vietnamese/target/releases/elasticsearch-analysis-vietnamese-$ES_VERSION.zip /tmp/
+RUN /usr/share/elasticsearch/bin/elasticsearch-plugin install --batch \
+        file:///tmp/elasticsearch-analysis-vietnamese-$ES_VERSION.zip && \
     rm /tmp/elasticsearch-analysis-vietnamese-$ES_VERSION.zip
+
+USER elasticsearch
