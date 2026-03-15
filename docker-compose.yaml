@@ -1,23 +1,18 @@
-version: '3.4'
-
 services:
   elasticsearch:
+    container_name: es-vi
     build:
       context: .
       args:
         ES_VERSION: ${ES_VERSION}
+    image: elasticsearch-vietnamese
     restart: on-failure
     ports:
       - "9200:9200"
-    ulimits:
-      nofile:
-        soft: 65536
-        hard: 65536
-      memlock:
-        hard: -1
-        soft: -1
+    volumes:
+      - ./data:/usr/share/elasticsearch/data
     environment:
-      ES_JAVA_OPTS: "-Xmx2g -Xms2g"
+      ES_JAVA_OPTS: "-Xmx4g -Xms4g"
       ELASTIC_USERNAME: "elastic"
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
       bootstrap.memory_lock: "true"

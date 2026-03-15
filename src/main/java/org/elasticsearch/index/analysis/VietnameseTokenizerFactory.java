@@ -29,7 +29,7 @@ public class VietnameseTokenizerFactory extends AbstractTokenizerFactory {
     private final VietnameseConfig config;
 
     public VietnameseTokenizerFactory(IndexSettings indexSettings, Environment env, String name, Settings settings) {
-        super(indexSettings, settings, name);
+        super(name);
         config = new VietnameseConfig(settings);
     }
 

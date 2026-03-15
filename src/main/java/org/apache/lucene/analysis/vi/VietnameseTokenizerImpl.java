@@ -16,15 +16,13 @@ package org.apache.lucene.analysis.vi;
 import com.coccoc.Token;
 import com.coccoc.Tokenizer;
 import com.coccoc.Tokenizer.TokenizeOption;
-import com.google.common.io.CharStreams;
 import org.elasticsearch.analysis.VietnameseConfig;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
+import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Implementation of Vietnamese Tokenizer.
@@ -50,10 +48,8 @@ final class VietnameseTokenizerImpl {
         } else {
             option = TokenizeOption.NORMAL;
         }
-        tokenizer = AccessController.doPrivileged(
-                (PrivilegedAction<Tokenizer>) () -> Tokenizer.getInstance(config.dictPath)
-        );
-        pending = new CopyOnWriteArrayList<>();
+        tokenizer = Tokenizer.getInstance(config.dictPath);
+        pending = new ArrayList<>();
     }
 
     public Token getNextToken() throws IOException {
@@ -82,14 +78,17 @@ final class VietnameseTokenizerImpl {
     }
 
     private List<Token> tokenize(Reader input) throws IOException {
-        return tokenize(CharStreams.toString(input));
+        return tokenize(readFully(input));
     }
 
-
     private List<Token> tokenize(String input) {
-        return AccessController.doPrivileged(
-                (PrivilegedAction<List<Token>>) () -> tokenizer.segment(input, option, config.keepPunctuation)
-        );
+        return tokenizer.segment(input, option, config.keepPunctuation);
+    }
+
+    private static String readFully(Reader reader) throws IOException {
+        StringWriter writer = new StringWriter();
+        reader.transferTo(writer);
+        return writer.toString();
     }
 
 }
