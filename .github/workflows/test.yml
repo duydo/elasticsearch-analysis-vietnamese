@@ -8,15 +8,18 @@ jobs:
     strategy:
       matrix:
         entry:
-          - { version: 17, distribution: 'adopt' }
+          - { version: 21, distribution: 'temurin' }
     steps:
       - name: Checkout analysis-vietnamese 
-        uses: actions/checkout@v3
-      - name: Check Out coccoc-tokenizer
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+      - name: Checkout coccoc-tokenizer
+        uses: actions/checkout@v5
         with:
           repository: coccoc/coccoc-tokenizer
           path: coccoc-tokenizer
+          fetch-depth: 1
       - name: Build coccoc-tokenizer
         working-directory: ./coccoc-tokenizer
         run: |
@@ -24,11 +27,12 @@ jobs:
           cmake -DBUILD_JAVA=1 ..
           sudo make install
       - name: Set up JDK ${{ matrix.entry.version }}
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v5
         with:
           java-version: ${{ matrix.entry.version }}
           distribution: ${{ matrix.entry.distribution }}
           cache: maven
+          cache-dependency-path: pom.xml
       - name: Build and Test
         run: |
           export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH

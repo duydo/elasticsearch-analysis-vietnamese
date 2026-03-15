@@ -90,7 +90,7 @@ mvn test -Dtests.seed=1A2B3C4D5E6F
 ## Test Classes
 
 | Class | Type | Needs native lib |
-|---|---|:---:|
+| --- | --- | :---: |
 | `o.a.l.analysis.vi.TestVietnameseAnalyzer` | Unit — stop-set loading & analyzer construction | No |
 | `o.e.analysis.VietnameseConfigTest` | Unit — settings parsing | No |
 | `o.e.index.analysis.VietnameseAnalysisTests` | ES single-node — tokenization & factory wiring | Yes |

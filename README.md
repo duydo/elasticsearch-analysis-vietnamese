@@ -187,6 +187,7 @@ Optionally, edit the `elasticsearch-analysis-vietnamese/pom.xml` to change the v
  ```
 
 Build the plugin:
+
 ```sh
 cd elasticsearch-analysis-vietnamese
 mvn package
@@ -236,7 +237,6 @@ I don't maintain the plugin with the VnTokenizer anymore, if you want to continu
 | 0.1.1                      | 1.4+            |
 | 0.1                        | 1.3             |
 
-
 ## Issues
 
 You might get errors during starting Elasticsearch with the plugin
@@ -263,12 +263,12 @@ cp /usr/local/lib/libcoccoc_tokenizer_jni.so /usr/lib
 
 **2. Error: Cannot initialize Tokenizer: /usr/local/share/tokenizer/dicts** (reported in [106](https://github.com/duydo/elasticsearch-analysis-vietnamese/issues/106))
 
-It happens because of the tokenizer cannot find the dictionary files under `/usr/local/share/tokenizer/dicts`. 
+It happens because of the tokenizer cannot find the dictionary files under `/usr/local/share/tokenizer/dicts`.
 Ensure the path `/usr/local/share/tokenizer/dicts` existed and includes those files: alphabetic, i_and_y.txt, nontone_pair_freq_map.dump, syllable_trie.dump
 d_and_gi.txt, multiterm_trie.dump, numeric. If not, try to build the C++ tokenizer (Step 1) again.
 
-
 ## Thanks to
+
 - [JetBrains](https://www.jetbrains.com) has provided a free license for [IntelliJ IDEA](https://www.jetbrains.com/idea).
 - [CocCoc team](https://coccoc.com) has provided their C++ Vietnamese tokenizer library as open source.
 
