@@ -14,10 +14,18 @@
 
 package org.apache.lucene.analysis.vi;
 
-import org.apache.lucene.analysis.*;
+import org.apache.lucene.analysis.CharArraySet;
+import org.apache.lucene.analysis.LowerCaseFilter;
+import org.apache.lucene.analysis.StopFilter;
+import org.apache.lucene.analysis.StopwordAnalyzerBase;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.WordlistLoader;
 import org.elasticsearch.analysis.VietnameseConfig;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 /**
  * {@link Analyzer} for Vietnamese language
@@ -55,7 +63,13 @@ public class VietnameseAnalyzer extends StopwordAnalyzerBase {
 
         static {
             try {
-                DEFAULT_STOP_SET = loadStopwordSet(false, VietnameseAnalyzer.class, DEFAULT_STOPWORDS_FILE, STOPWORDS_COMMENT);
+                DEFAULT_STOP_SET = WordlistLoader.getWordSet(
+                        new InputStreamReader(
+                                VietnameseAnalyzer.class.getResourceAsStream(DEFAULT_STOPWORDS_FILE),
+                                StandardCharsets.UTF_8
+                        ),
+                        STOPWORDS_COMMENT
+                );
             } catch (IOException ex) {
                 // default set should always be present as it is part of the
                 // distribution (JAR)

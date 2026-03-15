@@ -1,29 +1,23 @@
 package com.coccoc;
 
-import java.lang.reflect.Field;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
 
+/**
+ * Memory access utilities using the Java 21 Foreign Function & Memory (FFM) API
+ * as a replacement for the terminally deprecated sun.misc.Unsafe address-based methods.
+ */
 public class Unsafe {
 
-  public static final sun.misc.Unsafe UNSAFE;
-
-  static {
-    sun.misc.Unsafe unsafe = null;
-    try {
-      Field field = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
-      field.setAccessible(true);
-      unsafe = (sun.misc.Unsafe) field.get(null);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    UNSAFE = unsafe;
-  }
-
-
   public static int getInt(long address) {
-    return UNSAFE.getInt(address);
+    return MemorySegment.ofAddress(address)
+        .reinterpret(Integer.BYTES)
+        .get(ValueLayout.JAVA_INT_UNALIGNED, 0);
   }
 
   public static long getLong(long address) {
-    return UNSAFE.getLong(address);
+    return MemorySegment.ofAddress(address)
+        .reinterpret(Long.BYTES)
+        .get(ValueLayout.JAVA_LONG_UNALIGNED, 0);
   }
 }

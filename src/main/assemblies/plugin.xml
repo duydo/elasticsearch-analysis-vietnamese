@@ -14,19 +14,16 @@
             <source>${project.basedir}/src/main/resources/plugin-security.policy</source>
             <filtered>true</filtered>
         </file>
+        <file>
+            <source>${project.basedir}/src/main/plugin-metadata/entitlement-policy.yaml</source>
+            <filtered>true</filtered>
+        </file>
 
     </files>
     <dependencySets>
         <dependencySet>
             <useProjectArtifact>true</useProjectArtifact>
             <useTransitiveFiltering>true</useTransitiveFiltering>
-        </dependencySet>
-        <dependencySet>
-            <useProjectArtifact>true</useProjectArtifact>
-            <useTransitiveFiltering>true</useTransitiveFiltering>
-            <includes>
-                <include>com.google.guava:guava</include>
-            </includes>
         </dependencySet>
     </dependencySets>
 </assembly>

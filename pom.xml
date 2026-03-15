@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.elasticsearch</groupId>
     <artifactId>elasticsearch-analysis-vietnamese</artifactId>
-    <version>${projectVersion}</version>
+    <version>9.3.0</version>
     <packaging>jar</packaging>
     <name>elasticsearch-analysis-vietnamese</name>
     <url>https://github.com/duydo/elasticsearch-analysis-vietnamese/</url>
@@ -30,17 +30,14 @@
     </scm>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.build.java.version>1.8</project.build.java.version>
-        <projectVersion>8.7.0</projectVersion>
+        <project.build.java.version>21</project.build.java.version>
         <elasticsearch.version>${project.version}</elasticsearch.version>
-        <log4j.version>2.17.2</log4j.version>
+        <log4j.version>2.25.3</log4j.version>
+        <!-- Overridden by jdk-21 / jdk-22-plus profiles below -->
+        <maven.compiler.release>22</maven.compiler.release>
+        <surefire.argLine>--enable-native-access=ALL-UNNAMED -Dio.netty.noUnsafe=true -Djava.util.logging.config.file=${project.basedir}/src/test/resources/jul-suppress.properties</surefire.argLine>
     </properties>
     <dependencies>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>32.0.0-jre</version>
-        </dependency>
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
@@ -77,21 +74,20 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>3.4.2</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
+                <version>3.13.0</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <release>${maven.compiler.release}</release>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.1.2</version>
+                <version>3.3.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -103,7 +99,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.6</version>
+                <version>3.7.1</version>
                 <configuration>
                     <appendAssemblyId>false</appendAssemblyId>
                     <outputDirectory>${project.build.directory}/releases/</outputDirectory>
@@ -121,37 +117,61 @@
                 </executions>
             </plugin>
             <plugin>
-                <!-- we skip surefire to work with randomized testing above -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.20</version>
+                <version>3.5.2</version>
                 <configuration>
-                    <skipTests>false</skipTests>
+                    <!-- Allow ES native provider to load via Panama/FFM API (eliminates
+                         NativeAccess WARN + "restricted method" JVM warnings).
+                         Disable Netty's sun.misc.Unsafe usage so Java 21+ does not
+                         print the backported "terminally deprecated" Unsafe warnings.
+                         JUL config suppresses the Lucene vector-API warning before the
+                         ES test framework bridges JUL to log4j2.
+                         On JDK 21, the jdk-21 profile injects enable-preview into
+                         surefire.argLine (java.lang.foreign is preview there). -->
+                    <argLine>${surefire.argLine}</argLine>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.carrotsearch.randomizedtesting</groupId>
-                <artifactId>junit4-maven-plugin</artifactId>
-                <version>2.3.3</version>
-                <configuration>
-                    <assertions enableSystemAssertions="false">
-                        <enable/>
-                    </assertions>
-
-                    <listeners>
-                        <report-text/>
-                    </listeners>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>unit-tests</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>junit4</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- JDK 21: java.lang.foreign is still a preview API, so enable-preview
+             must be passed to both the compiler and the test JVM. -->
+        <profile>
+            <id>jdk-21</id>
+            <activation>
+                <jdk>21</jdk>
+            </activation>
+            <properties>
+                <maven.compiler.release>21</maven.compiler.release>
+                <surefire.argLine>--enable-preview --enable-native-access=ALL-UNNAMED -Dio.netty.noUnsafe=true -Djava.util.logging.config.file=${project.basedir}/src/test/resources/jul-suppress.properties</surefire.argLine>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <configuration>
+                            <release>21</release>
+                            <compilerArgs>
+                                <arg>--enable-preview</arg>
+                            </compilerArgs>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- JDK 22+: java.lang.foreign (FFM API) is fully stable — no preview flag needed. -->
+        <profile>
+            <id>jdk-22-plus</id>
+            <activation>
+                <jdk>[22,)</jdk>
+            </activation>
+            <properties>
+                <maven.compiler.release>22</maven.compiler.release>
+            </properties>
+        </profile>
+    </profiles>
 </project>

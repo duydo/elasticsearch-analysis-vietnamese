@@ -1,0 +1,7 @@
+.git
+.gitignore
+.env*
+data/
+target/
+*.md
+LICENSE.txt
