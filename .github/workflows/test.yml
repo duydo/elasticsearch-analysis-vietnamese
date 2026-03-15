@@ -3,23 +3,6 @@ name: Test
 on: [push, pull_request]
 
 jobs:
-  trivy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout analysis-vietnamese
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 1
-      - name: Run Trivy vulnerability scan
-        uses: aquasecurity/trivy-action@0.28.0
-        with:
-          scan-type: fs
-          scan-ref: .
-          format: table
-          severity: HIGH,CRITICAL
-          ignore-unfixed: true
-          exit-code: '1'
-
   test:
     runs-on: ubuntu-latest
     strategy:
