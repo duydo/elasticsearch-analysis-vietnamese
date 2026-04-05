@@ -18,6 +18,9 @@ public final class Token implements Cloneable {
 
 		private static final Type[] VALUES = Type.values();
 		public static Type fromInt(int i) {
+			if (i < 0 || i >= VALUES.length) {
+				throw new IllegalArgumentException("Invalid Token.Type ordinal: " + i);
+			}
 			return VALUES[i];
 		}
 	}
@@ -31,6 +34,9 @@ public final class Token implements Cloneable {
 
 		private static final SegType[] VALUES = SegType.values();
 		public static SegType fromInt(int i) {
+			if (i < 0 || i >= VALUES.length) {
+				throw new IllegalArgumentException("Invalid Token.SegType ordinal: " + i);
+			}
 			return VALUES[i];
 		}
 	}
@@ -38,7 +44,7 @@ public final class Token implements Cloneable {
 	private final String text;
 	private final Type type;
 	private SegType segType; // Nullable
-	private boolean splittedByDot;
+	private boolean splitByDot;
 	private final int startPos;
 	private final int endPos;
 
@@ -51,18 +57,18 @@ public final class Token implements Cloneable {
 	}
 
 	public Token cloneWithNewText(String newText, int newEnd) {
-		return new Token(newText, type, segType, splittedByDot, startPos, newEnd);
+		return new Token(newText, type, segType, splitByDot, startPos, newEnd);
 	}
 
 	public Token(String text, Type type, SegType segType, int start, int end) {
 		this(text, type, segType, false, start, end);
 	}
 
-	public Token(String text, Type type, SegType segType, boolean splittedByDot, int start, int end) {
+	public Token(String text, Type type, SegType segType, boolean splitByDot, int start, int end) {
 		this.text = text;
 		this.type = type;
 		this.segType = segType;
-		this.splittedByDot = splittedByDot;
+		this.splitByDot = splitByDot;
 		this.startPos = start;
 		this.endPos = end > 0 ? end : start + text.length();
 	}
@@ -116,7 +122,7 @@ public final class Token implements Cloneable {
 
 	@Override
 	public Token clone() {
-		return new Token(text, type, segType, startPos, endPos);
+		return new Token(text, type, segType, splitByDot, startPos, endPos);
 	}
 
 	@Override
@@ -176,8 +182,8 @@ public final class Token implements Cloneable {
 		return segType == SegType.END_SEG_TYPE;
 	}
 
-	public boolean isSplittedByDot() {
-		return splittedByDot;
+	public boolean isSplitByDot() {
+		return splitByDot;
 	}
 
 	public void setEndSeg() {
