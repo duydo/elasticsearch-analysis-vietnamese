@@ -122,9 +122,7 @@ public class VietnameseAnalysisTests extends ESSingleNodeTestCase {
     public void testVietnameseAnalyzerWithCustomTokenizer() throws IOException {
         Settings settings = Settings.builder()
                 .put("index.analysis.analyzer.vi_analyzer.tokenizer", "my_tokenizer")
-//                .put("index.analysis.analyzer.vi_analyzer.filter", "vi_stop")
                 .put("index.analysis.tokenizer.my_tokenizer.type", "vi_tokenizer")
-//                .put("index.analysis.tokenizer.my_tokenizer.split_url", true)
                 .build();
         TestAnalysis analysis = createTestAnalysis(settings);
         try {
@@ -159,15 +157,6 @@ public class VietnameseAnalysisTests extends ESSingleNodeTestCase {
         } finally {
             analysis.indexAnalyzers.close();
         }
-    }
-
-
-    public TestAnalysis createTestAnalysisFromFile() throws IOException {
-        String json = "/org/elasticsearch/index/analysis/vi_analysis.json";
-        Settings settings = Settings.builder()
-                .loadFromStream(json, VietnameseAnalysisTests.class.getResourceAsStream(json), true)
-                .build();
-        return createTestAnalysis(settings);
     }
 
 

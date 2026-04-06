@@ -1,7 +1,6 @@
 package com.coccoc;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -34,29 +33,22 @@ public class Tokenizer {
     }
   }
 
-  public static final String SPACE = " ";
-  public static final String UNDERSCORE = "_";
   public static final String COMMA = ",";
   public static final String DOT = ".";
 
 
-  private static String dictPath = null;
+  private static volatile Tokenizer instance;
+  private static String initializedDictPath;
 
-  private static final class Loader {
-
-    private static final Tokenizer INSTANCE = get();
-
-    private Loader() {
+  public static synchronized Tokenizer getInstance(String dictPath) {
+    if (instance == null) {
+      instance = new Tokenizer(dictPath);
+      initializedDictPath = dictPath;
+    } else if (initializedDictPath == null ? dictPath != null : !initializedDictPath.equals(dictPath)) {
+      throw new IllegalStateException(
+          "Tokenizer already initialized with dictPath: " + initializedDictPath);
     }
-
-    private static Tokenizer get() {
-      return new Tokenizer(dictPath);
-    }
-  }
-
-  public static Tokenizer getInstance(String dictPath) {
-    Tokenizer.dictPath = dictPath;
-    return Loader.INSTANCE;
+    return instance;
   }
 
   private Tokenizer(String dictPath) {
@@ -76,26 +68,25 @@ public class Tokenizer {
     }
 
     final List<Token> tokens = new ArrayList<>();
-    // Positions from JNI implementation .cpp file
-    int rangesSize = Unsafe.getInt(resPointer + 8 * 2);
-    long rangesDataPointer = Unsafe.getLong(resPointer + 8 * 3);
-    int tokenSize = 4 * 6;
-    for (int i = 0; i < rangesSize; ++i) {
-      // Positions of UNSAFE values are calculated from {struct Token} in tokenizer.hpp
-      int originalStartPos = Unsafe.getInt(rangesDataPointer + i * tokenSize + 8);
-      int originalEndPos = Unsafe.getInt(rangesDataPointer + i * tokenSize + 12);
-      int type = Unsafe.getInt(rangesDataPointer + i * tokenSize + 16);
-      int segType = Unsafe.getInt(rangesDataPointer + i * tokenSize + 20);
+    try {
+      // Positions from JNI implementation .cpp file
+      int rangesSize = Unsafe.getInt(resPointer + 8 * 2);
+      long rangesDataPointer = Unsafe.getLong(resPointer + 8 * 3);
+      int tokenSize = 4 * 6;
+      for (int i = 0; i < rangesSize; ++i) {
+        // Positions of UNSAFE values are calculated from {struct Token} in tokenizer.hpp
+        int originalStartPos = Unsafe.getInt(rangesDataPointer + i * tokenSize + 8);
+        int originalEndPos = Unsafe.getInt(rangesDataPointer + i * tokenSize + 12);
+        int type = Unsafe.getInt(rangesDataPointer + i * tokenSize + 16);
+        int segType = Unsafe.getInt(rangesDataPointer + i * tokenSize + 20);
 
-      // Build substring from UNSAFE array of codepoints
-      final StringBuilder sb = new StringBuilder();
-      for (int j = originalStartPos; j < originalEndPos; ++j) {
-        sb.appendCodePoint(text.charAt(j));
+        String tokenText = text.substring(originalStartPos, originalEndPos);
+        tokens.add(new Token(segType == 1 ? tokenText.replace(COMMA, DOT) : tokenText,
+            Token.Type.fromInt(type), Token.SegType.fromInt(segType), originalStartPos, originalEndPos));
       }
-      tokens.add(new Token(segType == 1 ? sb.toString().replace(COMMA, DOT) : sb.toString(),
-          Token.Type.fromInt(type), Token.SegType.fromInt(segType), originalStartPos, originalEndPos));
+    } finally {
+      freeMemory(resPointer);
     }
-    freeMemory(resPointer);
     return tokens;
   }
 
