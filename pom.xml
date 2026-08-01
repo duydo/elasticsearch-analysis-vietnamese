@@ -32,7 +32,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.java.version>21</project.build.java.version>
         <elasticsearch.version>${project.version}</elasticsearch.version>
-        <log4j.version>2.25.3</log4j.version>
+        <log4j.version>2.25.4</log4j.version>
         <!-- Overridden by jdk-21 / jdk-22-plus profiles below -->
         <maven.compiler.release>22</maven.compiler.release>
         <surefire.argLine>--enable-native-access=ALL-UNNAMED -Dio.netty.noUnsafe=true -Djava.util.logging.config.file=${project.basedir}/src/test/resources/jul-suppress.properties</surefire.argLine>
