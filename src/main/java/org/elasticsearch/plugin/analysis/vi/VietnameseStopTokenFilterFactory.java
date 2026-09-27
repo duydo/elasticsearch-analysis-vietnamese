@@ -21,8 +21,6 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.env.Environment;
 import org.elasticsearch.index.IndexSettings;
 import org.elasticsearch.index.analysis.AbstractTokenFilterFactory;
-import org.elasticsearch.index.analysis.Analysis;
-import org.elasticsearch.plugin.analysis.vi.lucene.VietnameseAnalyzer;
 
 /**
  * Factory for a {@link StopFilter} with Vietnamese stop words, registered as {@code vi_stop}.
@@ -35,7 +33,7 @@ public class VietnameseStopTokenFilterFactory extends AbstractTokenFilterFactory
 
     public VietnameseStopTokenFilterFactory(IndexSettings indexSettings, Environment env, String name, Settings settings) {
         super(name);
-        stopWords = Analysis.parseStopWords(env, settings, VietnameseAnalyzer.getDefaultStopSet());
+        stopWords = VietnameseStopWords.parse(env, settings);
     }
 
     @Override

@@ -85,6 +85,37 @@ public class VietnameseAnalysisTests extends ESSingleNodeTestCase {
         }
     }
 
+    public void testStopWordsSettings() throws IOException {
+        Settings settings = Settings.builder()
+                .put("index.analysis.analyzer.named.type", "vi_analyzer")
+                .put("index.analysis.analyzer.named.stopwords", "_vi_")
+                .put("index.analysis.analyzer.none.type", "vi_analyzer")
+                .put("index.analysis.analyzer.none.stopwords", "_none_")
+                .putList("index.analysis.analyzer.custom.stopwords", "thông tin")
+                .put("index.analysis.analyzer.custom.type", "vi_analyzer")
+                .put("index.analysis.filter.vi_named.type", "vi_stop")
+                .put("index.analysis.filter.vi_named.stopwords", "_vietnamese_")
+                .put("index.analysis.analyzer.filtered.tokenizer", "vi_tokenizer")
+                .putList("index.analysis.analyzer.filtered.filter", "lowercase", "vi_named")
+                .put("index.analysis.filter.vi_ignore_case.type", "vi_stop")
+                .put("index.analysis.filter.vi_ignore_case.ignore_case", true)
+                .put("index.analysis.analyzer.ignore_case.tokenizer", "vi_tokenizer")
+                .putList("index.analysis.analyzer.ignore_case.filter", "vi_ignore_case")
+                .build();
+        TestAnalysis analysis = createTestAnalysis(settings);
+        try {
+            String text = "công nghệ thông tin của Việt Nam";
+            assertAnalyzesTo(analysis.indexAnalyzers.get("named"), text, new String[]{"công nghệ", "thông tin", "việt nam"});
+            assertAnalyzesTo(analysis.indexAnalyzers.get("filtered"), text, new String[]{"công nghệ", "thông tin", "việt nam"});
+            assertAnalyzesTo(analysis.indexAnalyzers.get("none"), text,
+                new String[]{"công nghệ", "thông tin", "của", "việt nam"});
+            assertAnalyzesTo(analysis.indexAnalyzers.get("custom"), text, new String[]{"công nghệ", "của", "việt nam"});
+            assertAnalyzesTo(analysis.indexAnalyzers.get("ignore_case"), "Của Việt Nam", new String[]{"Việt Nam"});
+        } finally {
+            analysis.indexAnalyzers.close();
+        }
+    }
+
     public void testVietnameseAnalyzerNormalizesToLowerCase() throws IOException {
         TestAnalysis analysis = createTestAnalysis(Settings.EMPTY);
         try {

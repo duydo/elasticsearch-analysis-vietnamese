@@ -19,7 +19,6 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.env.Environment;
 import org.elasticsearch.index.IndexSettings;
 import org.elasticsearch.index.analysis.AbstractIndexAnalyzerProvider;
-import org.elasticsearch.index.analysis.Analysis;
 import org.elasticsearch.plugin.analysis.vi.lucene.VietnameseAnalyzer;
 
 /**
@@ -32,7 +31,7 @@ public class VietnameseAnalyzerProvider extends AbstractIndexAnalyzerProvider<Vi
 
     public VietnameseAnalyzerProvider(IndexSettings indexSettings, Environment env, String name, Settings settings) {
         super(name);
-        CharArraySet stopWords = Analysis.parseStopWords(env, settings, VietnameseAnalyzer.getDefaultStopSet());
+        CharArraySet stopWords = VietnameseStopWords.parse(env, settings);
         analyzer = new VietnameseAnalyzer(VietnameseConfig.fromSettings(settings), stopWords);
     }
 
