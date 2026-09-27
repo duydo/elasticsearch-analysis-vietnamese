@@ -1,5 +1,7 @@
+# Elasticsearch version to build the plugin for and to run (the plugin must match it exactly)
+ARG ES_VERSION=9.3.0
+
 # ── Stage 1: Build coccoc-tokenizer ──────────────────────────────────
-ARG ES_VERSION
 FROM docker.elastic.co/elasticsearch/elasticsearch:$ES_VERSION AS coccoc-builder
 
 USER root
@@ -39,14 +41,16 @@ ENV PATH=$MVN_HOME/bin:$PATH
 
 WORKDIR /tmp/elasticsearch-analysis-vietnamese
 
-# Copy POM first to cache dependency downloads separately from source changes
+# Copy POM first to cache dependency downloads separately from source changes.
+# The plugin version follows the Elasticsearch version (see pom.xml), so set both to ES_VERSION.
+ARG ES_VERSION
 COPY pom.xml .
-RUN mvn dependency:go-offline --batch-mode -q
+RUN mvn --batch-mode -q versions:set -DnewVersion=${ES_VERSION} -DgenerateBackupPoms=false && \
+    mvn --batch-mode -q dependency:go-offline
 
 # Copy source and build
 COPY src/ src/
-ARG ES_VERSION
-RUN mvn --batch-mode -Dmaven.test.skip -e package -DprojectVersion=$ES_VERSION
+RUN mvn --batch-mode -Dmaven.test.skip -e package
 
 # ── Stage 3: Final runtime image ────────────────────────────────────
 FROM docker.elastic.co/elasticsearch/elasticsearch:$ES_VERSION

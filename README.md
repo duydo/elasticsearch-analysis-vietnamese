@@ -39,7 +39,7 @@ The [Dockerfile](Dockerfile) builds the native library and the plugin, then inst
 git clone https://github.com/duydo/elasticsearch-analysis-vietnamese.git
 cd elasticsearch-analysis-vietnamese
 
-cp .env.sample .env          # set ELASTIC_PASSWORD; ES_VERSION must match the plugin version
+cp .env.sample .env          # set ELASTIC_PASSWORD, and ES_VERSION (any 9.x release, default 9.3.0)
 mkdir -p data && chmod a+rw data
 
 docker compose up --build
@@ -217,11 +217,18 @@ mvn clean package
 
 The plugin ZIP is written to `target/releases/`. See [TESTING.md](TESTING.md) for running the tests.
 
+To build for another Elasticsearch 9.x release, set the project version to that release first. The Elasticsearch dependency and the plugin descriptor follow it:
+
+```bash
+mvn versions:set -DnewVersion=9.2.0 -DgenerateBackupPoms=false
+mvn clean package
+```
+
 ---
 
 ## 📋 Compatibility
 
-Each plugin release is built for exactly one Elasticsearch version.
+Each plugin release is built for exactly one Elasticsearch version. The current code builds and passes its tests against Elasticsearch 9.0.0, 9.1.0, 9.2.0 and 9.3.0; see [Building from Source](#-building-from-source) to build for your version.
 
 | Plugin | Elasticsearch | Java |
 | :--- | :--- | :--- |

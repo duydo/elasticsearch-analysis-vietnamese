@@ -5,3 +5,4 @@ data/
 target/
 *.md
 LICENSE.txt
+coccoc-tokenizer/
