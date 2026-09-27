@@ -9,6 +9,7 @@ jobs:
       matrix:
         entry:
           - { version: 21, distribution: 'temurin' }
+          - { version: 25, distribution: 'temurin' }
     steps:
       - name: Checkout analysis-vietnamese 
         uses: actions/checkout@v5
@@ -17,7 +18,7 @@ jobs:
       - name: Checkout coccoc-tokenizer
         uses: actions/checkout@v5
         with:
-          repository: coccoc/coccoc-tokenizer
+          repository: duydo/coccoc-tokenizer
           path: coccoc-tokenizer
           fetch-depth: 1
       - name: Build coccoc-tokenizer
@@ -34,6 +35,4 @@ jobs:
           cache: maven
           cache-dependency-path: pom.xml
       - name: Build and Test
-        run: |
-          export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-          mvn --batch-mode test
+        run: mvn --batch-mode verify

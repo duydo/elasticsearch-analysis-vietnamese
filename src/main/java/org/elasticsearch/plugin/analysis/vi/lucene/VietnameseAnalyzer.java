@@ -12,8 +12,9 @@
  * the License.
  */
 
-package org.apache.lucene.analysis.vi;
+package org.elasticsearch.plugin.analysis.vi.lucene;
 
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.LowerCaseFilter;
 import org.apache.lucene.analysis.StopFilter;
@@ -21,87 +22,67 @@ import org.apache.lucene.analysis.StopwordAnalyzerBase;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.WordlistLoader;
-import org.elasticsearch.analysis.VietnameseConfig;
+import org.apache.lucene.util.IOUtils;
+import org.elasticsearch.plugin.analysis.vi.VietnameseConfig;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 
 /**
- * {@link Analyzer} for Vietnamese language
+ * {@link Analyzer} for Vietnamese: {@link VietnameseTokenizer}, then {@link LowerCaseFilter} and {@link StopFilter}.
  *
  * @author duydo
  */
 public class VietnameseAnalyzer extends StopwordAnalyzerBase {
 
-    /**
-     * File containing default Vietnamese stopwords.
-     */
-    public final static String DEFAULT_STOPWORDS_FILE = "stopwords.txt";
-    /**
-     * The comment character in the stopwords file.
-     * All lines prefixed with this will be ignored.
-     */
-    private static final String STOPWORDS_COMMENT = "#";
+    /** File containing default Vietnamese stop words, relative to this class. */
+    public static final String DEFAULT_STOPWORDS_FILE = "stopwords.txt";
 
-    /**
-     * Returns an unmodifiable instance of the default stop words set.
-     *
-     * @return default stop words set.
-     */
+    /** Returns an unmodifiable instance of the default stop words set. */
     public static CharArraySet getDefaultStopSet() {
         return DefaultSetHolder.DEFAULT_STOP_SET;
     }
 
-
-    /**
-     * Atomically loads the DEFAULT_STOP_SET in a lazy fashion once the outer class
-     * accesses the static final set the first time.;
-     */
+    /** Lazily loads the default stop set the first time it is accessed. */
     private static class DefaultSetHolder {
         static final CharArraySet DEFAULT_STOP_SET;
 
         static {
-            try {
-                DEFAULT_STOP_SET = WordlistLoader.getWordSet(
-                        new InputStreamReader(
-                                VietnameseAnalyzer.class.getResourceAsStream(DEFAULT_STOPWORDS_FILE),
-                                StandardCharsets.UTF_8
-                        ),
-                        STOPWORDS_COMMENT
-                );
-            } catch (IOException ex) {
-                // default set should always be present as it is part of the
-                // distribution (JAR)
-                throw new RuntimeException("Unable to load default stopword set");
+            try (InputStream in = IOUtils.requireResourceNonNull(
+                    VietnameseAnalyzer.class.getResourceAsStream(DEFAULT_STOPWORDS_FILE), DEFAULT_STOPWORDS_FILE)) {
+                DEFAULT_STOP_SET = CharArraySet.unmodifiableSet(
+                    WordlistLoader.getWordSet(IOUtils.getDecodingReader(in, StandardCharsets.UTF_8), "#"));
+            } catch (IOException e) {
+                // The default set is bundled in the plugin jar, so this should never happen
+                throw new UncheckedIOException("Unable to load default stop word set", e);
             }
         }
     }
 
-
     private final VietnameseConfig config;
 
-    /**
-     * Builds an analyzer with the default stop words: {@link #getDefaultStopSet}.
-     */
+    /** Builds an analyzer with the default stop words: {@link #getDefaultStopSet}. */
     public VietnameseAnalyzer(VietnameseConfig config) {
         this(config, getDefaultStopSet());
     }
 
-    /**
-     * Builds an analyzer with the default stop words
-     */
     public VietnameseAnalyzer(VietnameseConfig config, CharArraySet stopWords) {
         super(stopWords);
         this.config = config;
     }
 
-
     @Override
     protected TokenStreamComponents createComponents(String fieldName) {
-        final Tokenizer source = new VietnameseTokenizer(config);
+        Tokenizer source = new VietnameseTokenizer(config);
         TokenStream result = new LowerCaseFilter(source);
         result = new StopFilter(result, stopwords);
         return new TokenStreamComponents(source, result);
+    }
+
+    @Override
+    protected TokenStream normalize(String fieldName, TokenStream in) {
+        return new LowerCaseFilter(in);
     }
 }

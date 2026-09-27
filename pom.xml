@@ -33,9 +33,10 @@
         <project.build.java.version>21</project.build.java.version>
         <elasticsearch.version>${project.version}</elasticsearch.version>
         <log4j.version>2.25.3</log4j.version>
-        <!-- Overridden by jdk-21 / jdk-22-plus profiles below -->
-        <maven.compiler.release>22</maven.compiler.release>
-        <surefire.argLine>--enable-native-access=ALL-UNNAMED -Dio.netty.noUnsafe=true -Djava.util.logging.config.file=${project.basedir}/src/test/resources/jul-suppress.properties</surefire.argLine>
+        <maven.compiler.release>${project.build.java.version}</maven.compiler.release>
+        <!-- Directory containing libcoccoc_tokenizer_jni, used by tests -->
+        <tokenizer.lib.path>/usr/local/lib</tokenizer.lib.path>
+        <surefire.argLine>--enable-native-access=ALL-UNNAMED -Djava.library.path=${tokenizer.lib.path} -Dio.netty.noUnsafe=true -Djava.util.logging.config.file=${project.basedir}/src/test/resources/jul-suppress.properties</surefire.argLine>
     </properties>
     <dependencies>
         <dependency>
@@ -80,9 +81,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
-                <configuration>
-                    <release>${maven.compiler.release}</release>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -126,9 +124,7 @@
                          Disable Netty's sun.misc.Unsafe usage so Java 21+ does not
                          print the backported "terminally deprecated" Unsafe warnings.
                          JUL config suppresses the Lucene vector-API warning before the
-                         ES test framework bridges JUL to log4j2.
-                         On JDK 21, the jdk-21 profile injects enable-preview into
-                         surefire.argLine (java.lang.foreign is preview there). -->
+                         ES test framework bridges JUL to log4j2. -->
                     <argLine>${surefire.argLine}</argLine>
                 </configuration>
             </plugin>
@@ -136,42 +132,38 @@
     </build>
 
     <profiles>
-        <!-- JDK 21: java.lang.foreign is still a preview API, so enable-preview
-             must be passed to both the compiler and the test JVM. -->
+        <!-- The plugin targets Java 21, but reads native memory through the FFM API
+             (final since JDK 22) when available. FfmNativeMemory lives in src/main/java22
+             and is only compiled when building with JDK 22+; at runtime it is loaded
+             reflectively on JDK 22+, with a sun.misc.Unsafe fallback on JDK 21. -->
         <profile>
-            <id>jdk-21</id>
+            <id>ffm</id>
             <activation>
-                <jdk>21</jdk>
+                <jdk>[22,)</jdk>
             </activation>
-            <properties>
-                <maven.compiler.release>21</maven.compiler.release>
-                <surefire.argLine>--enable-preview --enable-native-access=ALL-UNNAMED -Dio.netty.noUnsafe=true -Djava.util.logging.config.file=${project.basedir}/src/test/resources/jul-suppress.properties</surefire.argLine>
-            </properties>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-compiler-plugin</artifactId>
-                        <configuration>
-                            <release>21</release>
-                            <compilerArgs>
-                                <arg>--enable-preview</arg>
-                            </compilerArgs>
-                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>compile-java22</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>compile</goal>
+                                </goals>
+                                <configuration>
+                                    <release>22</release>
+                                    <compileSourceRoots>
+                                        <compileSourceRoot>${project.basedir}/src/main/java22</compileSourceRoot>
+                                    </compileSourceRoots>
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
-        </profile>
-
-        <!-- JDK 22+: java.lang.foreign (FFM API) is fully stable — no preview flag needed. -->
-        <profile>
-            <id>jdk-22-plus</id>
-            <activation>
-                <jdk>[22,)</jdk>
-            </activation>
-            <properties>
-                <maven.compiler.release>22</maven.compiler.release>
-            </properties>
         </profile>
     </profiles>
 </project>

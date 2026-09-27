@@ -1,47 +1,35 @@
-package org.elasticsearch.index.analysis;
+package org.elasticsearch.plugin.analysis.vi;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
-import org.junit.BeforeClass;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.apache.lucene.analysis.vi.VietnameseAnalyzer;
-import org.apache.lucene.analysis.vi.VietnameseTokenizer;
+import org.apache.lucene.analysis.charfilter.MappingCharFilter;
+import org.apache.lucene.analysis.charfilter.NormalizeCharMap;
 import org.elasticsearch.cluster.metadata.IndexMetadata;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.env.Environment;
 import org.elasticsearch.index.IndexVersion;
-import org.elasticsearch.plugin.analysis.vi.AnalysisVietnamesePlugin;
+import org.elasticsearch.index.analysis.AnalysisTestsHelper;
+import org.elasticsearch.index.analysis.CustomAnalyzer;
+import org.elasticsearch.index.analysis.NamedAnalyzer;
+import org.elasticsearch.index.analysis.TokenizerFactory;
+import org.elasticsearch.plugin.analysis.vi.lucene.VietnameseAnalyzer;
+import org.elasticsearch.plugin.analysis.vi.lucene.VietnameseTokenizer;
 import org.elasticsearch.test.ESSingleNodeTestCase;
+import org.junit.BeforeClass;
 
 import java.io.IOException;
 import java.io.StringReader;
 
+import static org.apache.lucene.tests.analysis.BaseTokenStreamTestCase.assertAnalyzesTo;
 import static org.apache.lucene.tests.analysis.BaseTokenStreamTestCase.assertTokenStreamContents;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 
 /**
  * Created by duydo on 2/19/17.
  */
 public class VietnameseAnalysisTests extends ESSingleNodeTestCase {
-
-    /**
-     * True if the CocCoc native tokenizer library is present on this machine.
-     * Tests that exercise actual Vietnamese tokenization are skipped when it is absent.
-     */
-    private static final boolean NATIVE_LIB_AVAILABLE;
-    static {
-        boolean available;
-        try {
-            System.loadLibrary("coccoc_tokenizer_jni");
-            available = true;
-        } catch (UnsatisfiedLinkError ignored) {
-            available = false;
-        }
-        NATIVE_LIB_AVAILABLE = available;
-    }
 
     @BeforeClass
     public static void suppressKnownNoisyLoggers() {
@@ -56,17 +44,13 @@ public class VietnameseAnalysisTests extends ESSingleNodeTestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        assumeTrue(
-            "Requires the CocCoc native library (libcoccoc_tokenizer_jni). See TESTING.md.",
-            NATIVE_LIB_AVAILABLE
-        );
+        assumeTrue("Requires the CocCoc native library (libcoccoc_tokenizer_jni). See TESTING.md.",
+            NativeLibrary.AVAILABLE);
     }
 
     public void testVietnameseAnalysis() throws IOException {
         TestAnalysis analysis = createTestAnalysis(Settings.EMPTY);
         try {
-            assertNotNull(analysis);
-
             NamedAnalyzer analyzer = analysis.indexAnalyzers.get("vi_analyzer");
             assertNotNull(analyzer);
             assertThat(analyzer.analyzer(), instanceOf(VietnameseAnalyzer.class));
@@ -74,6 +58,8 @@ public class VietnameseAnalysisTests extends ESSingleNodeTestCase {
             TokenizerFactory tokenizerFactory = analysis.tokenizer.get("vi_tokenizer");
             assertNotNull(tokenizerFactory);
             assertThat(tokenizerFactory, instanceOf(VietnameseTokenizerFactory.class));
+
+            assertNotNull(analysis.tokenFilter.get("vi_stop"));
         } finally {
             analysis.indexAnalyzers.close();
         }
@@ -83,18 +69,27 @@ public class VietnameseAnalysisTests extends ESSingleNodeTestCase {
         TestAnalysis analysis = createTestAnalysis(Settings.EMPTY);
         try {
             NamedAnalyzer analyzer = analysis.indexAnalyzers.get("vi_analyzer");
-            assertNotNull(analyzer);
+            assertAnalyzesTo(analyzer, "công nghệ thông tin Việt Nam", new String[]{"công nghệ", "thông tin", "việt nam"});
+        } finally {
+            analysis.indexAnalyzers.close();
+        }
+    }
 
-            TokenStream ts = analyzer.analyzer().tokenStream("test", "công nghệ thông tin Việt Nam");
-            CharTermAttribute term = ts.addAttribute(CharTermAttribute.class);
-            ts.reset();
-            for (String expected : new String[]{"công nghệ", "thông tin", "việt nam"}) {
-                assertThat(ts.incrementToken(), equalTo(true));
-                assertThat(term.toString(), equalTo(expected));
-            }
-            assertThat(ts.incrementToken(), equalTo(false));
-            ts.end();
-            ts.close();
+    public void testVietnameseAnalyzerRemovesStopWords() throws IOException {
+        TestAnalysis analysis = createTestAnalysis(Settings.EMPTY);
+        try {
+            NamedAnalyzer analyzer = analysis.indexAnalyzers.get("vi_analyzer");
+            assertAnalyzesTo(analyzer, "công nghệ của Việt Nam", new String[]{"công nghệ", "việt nam"});
+        } finally {
+            analysis.indexAnalyzers.close();
+        }
+    }
+
+    public void testVietnameseAnalyzerNormalizesToLowerCase() throws IOException {
+        TestAnalysis analysis = createTestAnalysis(Settings.EMPTY);
+        try {
+            NamedAnalyzer analyzer = analysis.indexAnalyzers.get("vi_analyzer");
+            assertEquals("việt nam", analyzer.normalize("field", "Việt Nam").utf8ToString());
         } finally {
             analysis.indexAnalyzers.close();
         }
@@ -111,9 +106,7 @@ public class VietnameseAnalysisTests extends ESSingleNodeTestCase {
             assertThat(analyzer.analyzer(), instanceOf(CustomAnalyzer.class));
             TokenStream ts = analyzer.analyzer().tokenStream(null, new StringReader(""));
             assertThat(ts, instanceOf(VietnameseTokenizer.class));
-            ts.reset();
-            ts.end();
-            ts.close();
+            assertTokenStreamContents(ts, new String[0]);
         } finally {
             analysis.indexAnalyzers.close();
         }
@@ -127,17 +120,8 @@ public class VietnameseAnalysisTests extends ESSingleNodeTestCase {
         TestAnalysis analysis = createTestAnalysis(settings);
         try {
             NamedAnalyzer analyzer = analysis.indexAnalyzers.get("vi_analyzer");
-            assertNotNull(analyzer);
-            TokenStream ts = analyzer.analyzer().tokenStream("test", "Công nghệ thông tin Việt Nam https://duydo.me");
-            CharTermAttribute term = ts.addAttribute(CharTermAttribute.class);
-            ts.reset();
-            for (String expected : new String[]{"Công nghệ", "thông tin", "Việt Nam", "https", "duydo", "me"}) {
-                assertThat(ts.incrementToken(), equalTo(true));
-                assertThat(term.toString(), equalTo(expected));
-            }
-            assertThat(ts.incrementToken(), equalTo(false));
-            ts.end();
-            ts.close();
+            assertAnalyzesTo(analyzer, "Công nghệ thông tin Việt Nam https://duydo.me",
+                new String[]{"Công nghệ", "thông tin", "Việt Nam", "https", "duydo", "me"});
         } finally {
             analysis.indexAnalyzers.close();
         }
@@ -146,19 +130,48 @@ public class VietnameseAnalysisTests extends ESSingleNodeTestCase {
     public void testVietnameseTokenizer() throws IOException {
         TestAnalysis analysis = createTestAnalysis(Settings.EMPTY);
         try {
-            TokenizerFactory tokenizerFactory = analysis.tokenizer.get("vi_tokenizer");
-            assertNotNull(tokenizerFactory);
-
-            Tokenizer tokenizer = tokenizerFactory.create();
-            assertNotNull(tokenizer);
-
+            Tokenizer tokenizer = analysis.tokenizer.get("vi_tokenizer").create();
             tokenizer.setReader(new StringReader("công nghệ thông tin Việt Nam"));
-            assertTokenStreamContents(tokenizer, new String[]{"công nghệ", "thông tin", "Việt Nam"});
+            assertTokenStreamContents(tokenizer,
+                new String[]{"công nghệ", "thông tin", "Việt Nam"},
+                new int[]{0, 10, 20},
+                new int[]{9, 19, 28},
+                new String[]{"<WORD>", "<WORD>", "<WORD>"},
+                new int[]{1, 1, 1},
+                28);
         } finally {
             analysis.indexAnalyzers.close();
         }
     }
 
+    public void testFinalOffsetIncludesTrailingWhitespace() throws IOException {
+        Tokenizer tokenizer = new VietnameseTokenizer(VietnameseConfig.DEFAULT);
+        tokenizer.setReader(new StringReader("Việt Nam   "));
+        assertTokenStreamContents(tokenizer, new String[]{"Việt Nam"}, new int[]{0}, new int[]{8}, 11);
+    }
+
+    public void testOffsetsAreCorrectedThroughCharFilter() throws IOException {
+        NormalizeCharMap.Builder map = new NormalizeCharMap.Builder();
+        map.add("<b>", "");
+        map.add("</b>", "");
+        Tokenizer tokenizer = new VietnameseTokenizer(VietnameseConfig.DEFAULT);
+        tokenizer.setReader(new MappingCharFilter(map.build(), new StringReader("<b>Việt Nam</b>")));
+        assertTokenStreamContents(tokenizer, new String[]{"Việt Nam"}, new int[]{3}, new int[]{15}, 15);
+    }
+
+    public void testTokenizerIsReusable() throws IOException {
+        Tokenizer tokenizer = new VietnameseTokenizer(VietnameseConfig.DEFAULT);
+        tokenizer.setReader(new StringReader("công nghệ"));
+        assertTokenStreamContents(tokenizer, new String[]{"công nghệ"});
+        tokenizer.setReader(new StringReader("thông tin"));
+        assertTokenStreamContents(tokenizer, new String[]{"thông tin"});
+    }
+
+    public void testConflictingDictPathIsRejected() {
+        IllegalArgumentException e = expectThrows(IllegalArgumentException.class,
+            () -> new VietnameseTokenizer(new VietnameseConfig("/another/dict/path", false, false, false)));
+        assertTrue(e.getMessage(), e.getMessage().contains("/another/dict/path"));
+    }
 
     public TestAnalysis createTestAnalysis(Settings analysisSettings) throws IOException {
         Settings settings = Settings.builder()

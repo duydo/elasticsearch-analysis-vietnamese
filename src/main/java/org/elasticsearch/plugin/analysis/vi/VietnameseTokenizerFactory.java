@@ -12,31 +12,30 @@
  * the License.
  */
 
-package org.elasticsearch.index.analysis;
+package org.elasticsearch.plugin.analysis.vi;
 
-import org.apache.lucene.analysis.CharArraySet;
-import org.apache.lucene.analysis.vi.VietnameseAnalyzer;
-import org.elasticsearch.analysis.VietnameseConfig;
+import org.apache.lucene.analysis.Tokenizer;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.env.Environment;
 import org.elasticsearch.index.IndexSettings;
+import org.elasticsearch.index.analysis.AbstractTokenizerFactory;
+import org.elasticsearch.plugin.analysis.vi.lucene.VietnameseTokenizer;
 
 /**
- * Provider for {@link VietnameseAnalyzer}
+ * Factory for {@link VietnameseTokenizer}, registered as {@code vi_tokenizer}.
  *
  * @author duydo
  */
-public class VietnameseAnalyzerProvider extends AbstractIndexAnalyzerProvider<VietnameseAnalyzer> {
-    private final VietnameseAnalyzer analyzer;
+public class VietnameseTokenizerFactory extends AbstractTokenizerFactory {
+    private final VietnameseConfig config;
 
-    public VietnameseAnalyzerProvider(IndexSettings indexSettings, Environment env, String name, Settings settings) {
+    public VietnameseTokenizerFactory(IndexSettings indexSettings, Environment env, String name, Settings settings) {
         super(name);
-        final CharArraySet stopWords = Analysis.parseStopWords(env, settings, VietnameseAnalyzer.getDefaultStopSet());
-        analyzer = new VietnameseAnalyzer(new VietnameseConfig(settings), stopWords);
+        config = VietnameseConfig.fromSettings(settings);
     }
 
     @Override
-    public VietnameseAnalyzer get() {
-        return analyzer;
+    public Tokenizer create() {
+        return new VietnameseTokenizer(config);
     }
 }

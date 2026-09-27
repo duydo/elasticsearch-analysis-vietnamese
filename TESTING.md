@@ -32,9 +32,10 @@ cd coccoc-tokenizer && mkdir build && cd build
 cmake -DBUILD_JAVA=1 ..
 make install
 
-# Make the shared library discoverable by the JVM
-sudo ln -sf /usr/local/lib/libcoccoc_tokenizer_jni.* /usr/lib/
 ```
+
+Tests look for the library in `/usr/local/lib` by default. If it is installed elsewhere, pass
+`-Dtokenizer.lib.path=/path/to/lib` to Maven.
 
 **Verify the library is installed:**
 
@@ -43,7 +44,7 @@ sudo ln -sf /usr/local/lib/libcoccoc_tokenizer_jni.* /usr/lib/
 # Expected output: cộng hòa    xã hội    chủ nghĩa    việt nam
 ```
 
-> **Note:** The two unit test classes (`TestVietnameseAnalyzer`, `VietnameseConfigTest`) do **not** need the native library and can run anywhere.
+> **Note:** The unit test classes (`TokenTest`, `NativeMemoryTests`, `VietnameseAnalyzerTests`, `VietnameseConfigTests`) do **not** need the native library and can run anywhere.
 
 ---
 
@@ -66,14 +67,14 @@ mvn package -DskipTests
 ### Run a single test class
 
 ```sh
-mvn test -Dtests.class=org.elasticsearch.index.analysis.VietnameseAnalysisTests
+mvn test -Dtests.class=org.elasticsearch.plugin.analysis.vi.VietnameseAnalysisTests
 ```
 
 ### Run a single test method
 
 ```sh
 mvn test \
-  -Dtests.class=org.elasticsearch.index.analysis.VietnameseAnalysisTests \
+  -Dtests.class=org.elasticsearch.plugin.analysis.vi.VietnameseAnalysisTests \
   -Dtests.method=testVietnameseAnalyzer
 ```
 
@@ -91,18 +92,20 @@ mvn test -Dtests.seed=1A2B3C4D5E6F
 
 | Class | Type | Needs native lib |
 | --- | --- | :---: |
-| `o.a.l.analysis.vi.TestVietnameseAnalyzer` | Unit — stop-set loading & analyzer construction | No |
-| `o.e.analysis.VietnameseConfigTest` | Unit — settings parsing | No |
-| `o.e.index.analysis.VietnameseAnalysisTests` | ES single-node — tokenization & factory wiring | Yes |
-| `o.e.index.analysis.VietnameseAnalysisIntegrationTests` | ES integration — full cluster, search, analyze API | Yes |
+| `com.coccoc.TokenTest` | Unit — native enum mapping | No |
+| `com.coccoc.NativeMemoryTests` | Unit — `Unsafe` (JDK 21) and FFM (JDK 22+) native memory readers | No |
+| `o.e.p.a.vi.lucene.VietnameseAnalyzerTests` | Unit — stop-set loading & analyzer construction | No |
+| `o.e.p.a.vi.VietnameseConfigTests` | Unit — settings parsing | No |
+| `o.e.p.a.vi.VietnameseAnalysisTests` | ES single-node — tokenization, offsets & factory wiring | Yes |
+| `o.e.p.a.vi.VietnameseAnalysisIntegrationTests` | ES integration — full cluster, search, analyze API | Yes |
 
 ### Unit tests (no native library)
 
 These run fast and are safe to execute in any CI environment without the CocCoc library:
 
-- **`TestVietnameseAnalyzer`** — verifies that `WordlistLoader.getWordSet` correctly loads `stopwords.txt` (the replacement for the Lucene 10 / ES 9.x incompatible `loadStopwordSet` overload), checks known stop words are present, and confirms the analyzer constructs cleanly with default and custom stop-word sets.
+- **`VietnameseAnalyzerTests`** — verifies that `WordlistLoader.getWordSet` correctly loads `stopwords.txt` (the replacement for the Lucene 10 / ES 9.x incompatible `loadStopwordSet` overload), checks known stop words are present, and confirms the analyzer constructs cleanly with default and custom stop-word sets.
 
-- **`VietnameseConfigTest`** — verifies that `VietnameseConfig` reads all four settings (`dict_path`, `keep_punctuation`, `split_url`, `split_host`) and applies correct defaults when settings are absent.
+- **`VietnameseConfigTests`** — verifies that `VietnameseConfig` reads all four settings (`dict_path`, `keep_punctuation`, `split_url`, `split_host`), applies correct defaults when settings are absent, and maps them to the right `TokenizeOption`.
 
 ### Single-node tests (native library required)
 
@@ -184,5 +187,5 @@ public class MyIntegTest extends ESIntegTestCase {
 | Error | Cause | Fix |
 |---|---|---|
 | `UnsatisfiedLinkError: no coccoc_tokenizer_jni` / tests skipped with "Requires the CocCoc native library" | Native library not on JVM's library path | Follow the [install steps](#3-coccoc-tokenizer-native-library-required-for-tokenization-tests) above; `VietnameseAnalysisTests` and `VietnameseAnalysisIntegrationTests` skip automatically when the library is absent |
-| `RuntimeException: Unable to load default stopword set` | `stopwords.txt` missing from classpath | Ensure `src/main/resources/org/apache/lucene/analysis/vi/stopwords.txt` exists and run `mvn compile` |
+| `UncheckedIOException: Unable to load default stop word set` | `stopwords.txt` missing from classpath | Ensure `src/main/resources/org/elasticsearch/plugin/analysis/vi/lucene/stopwords.txt` exists and run `mvn compile` |
 | Tests not discovered / 0 tests run | Test class names don't match surefire's default pattern | Ensure test classes end with `Test`, `Tests`, or `TestCase` |

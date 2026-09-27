@@ -1,4 +1,4 @@
-package org.elasticsearch.index.analysis;
+package org.elasticsearch.plugin.analysis.vi;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
@@ -12,7 +12,6 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.plugins.Plugin;
 import org.elasticsearch.plugins.PluginRuntimeInfo;
-import org.elasticsearch.plugin.analysis.vi.AnalysisVietnamesePlugin;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.test.ESIntegTestCase;
 import org.elasticsearch.test.ESIntegTestCase.ClusterScope;
@@ -34,22 +33,6 @@ import static org.hamcrest.Matchers.notNullValue;
 @ClusterScope(supportsDedicatedMasters=false, numDataNodes=1, numClientNodes=0)
 public class VietnameseAnalysisIntegrationTests extends ESIntegTestCase {
 
-    /**
-     * True if the CocCoc native tokenizer library is present on this machine.
-     * All tests in this class are skipped when it is absent.
-     */
-    private static final boolean NATIVE_LIB_AVAILABLE;
-    static {
-        boolean available;
-        try {
-            System.loadLibrary("coccoc_tokenizer_jni");
-            available = true;
-        } catch (UnsatisfiedLinkError ignored) {
-            available = false;
-        }
-        NATIVE_LIB_AVAILABLE = available;
-    }
-
     @BeforeClass
     public static void suppressKnownNoisyLoggers() {
         // ES LogConfigurator (run in the parent @BeforeClass) resets log levels, so we
@@ -64,7 +47,7 @@ public class VietnameseAnalysisIntegrationTests extends ESIntegTestCase {
     public void setUp() throws Exception {
         assumeTrue(
             "Requires the CocCoc native library (libcoccoc_tokenizer_jni). See TESTING.md.",
-            NATIVE_LIB_AVAILABLE
+            NativeLibrary.AVAILABLE
         );
         super.setUp();
     }

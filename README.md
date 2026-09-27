@@ -33,7 +33,7 @@ The `vi_analyzer` analyzer accepts the following parameters:
 - `split_url` If it's enabled (`true`), a domain `duydo.me` is split into  `["duy", "do", "me"]`.
   If it's disabled (`false`) `duydo.me` is split into `["duydo", "me"]`. Defaults to `false`.
   
-- `stopwords` A pre-defined stop words list like `_vi_` or an array containing a list of stop words. Defaults to [stopwords.txt](src/main/resources/org/apache/lucene/analysis/vi/stopwords.txt) file.
+- `stopwords` A pre-defined stop words list like `_vi_` or an array containing a list of stop words. Defaults to [stopwords.txt](src/main/resources/org/elasticsearch/plugin/analysis/vi/lucene/stopwords.txt) file.
 - `stopwords_path` The path to a file containing stop words.
 
 ### Example configuration

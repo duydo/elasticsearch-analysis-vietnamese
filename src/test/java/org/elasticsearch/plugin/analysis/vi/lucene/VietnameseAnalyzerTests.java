@@ -12,11 +12,10 @@
  * the License.
  */
 
-package org.apache.lucene.analysis.vi;
+package org.elasticsearch.plugin.analysis.vi.lucene;
 
 import org.apache.lucene.analysis.CharArraySet;
-import org.elasticsearch.analysis.VietnameseConfig;
-import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.plugin.analysis.vi.VietnameseConfig;
 import org.elasticsearch.test.ESTestCase;
 
 import java.util.Arrays;
@@ -34,7 +33,7 @@ import java.util.Arrays;
  * <p>Tests that exercise actual Vietnamese tokenization live in
  * {@code VietnameseAnalysisTests} (requires the native library).
  */
-public class TestVietnameseAnalyzer extends ESTestCase {
+public class VietnameseAnalyzerTests extends ESTestCase {
 
     /**
      * Verifies the {@code WordlistLoader.getWordSet} code path introduced for Lucene 10 compatibility.
@@ -50,7 +49,7 @@ public class TestVietnameseAnalyzer extends ESTestCase {
     /** Spot-checks a handful of words known to be present in {@code stopwords.txt}. */
     public void testDefaultStopSetContainsKnownWords() {
         CharArraySet stopSet = VietnameseAnalyzer.getDefaultStopSet();
-        // Words present in src/main/resources/org/apache/lucene/analysis/vi/stopwords.txt
+        // Words present in src/main/resources/org/elasticsearch/plugin/analysis/vi/lucene/stopwords.txt
         for (String word : new String[]{"bị", "của", "và", "các", "cho"}) {
             assertTrue("Expected stop word '" + word + "' to be in the default set", stopSet.contains(word));
         }
@@ -63,7 +62,7 @@ public class TestVietnameseAnalyzer extends ESTestCase {
 
     /** Verifies the two-arg constructor accepts a custom stop set without throwing. */
     public void testAnalyzerConstructsWithCustomStopSet() {
-        VietnameseConfig config = new VietnameseConfig(Settings.EMPTY);
+        VietnameseConfig config = VietnameseConfig.DEFAULT;
         CharArraySet customStop = new CharArraySet(Arrays.asList("tôi", "bạn"), true);
         try (VietnameseAnalyzer analyzer = new VietnameseAnalyzer(config, customStop)) {
             assertNotNull(analyzer);
@@ -72,7 +71,7 @@ public class TestVietnameseAnalyzer extends ESTestCase {
 
     /** Verifies the single-arg constructor falls back to the default stop set without throwing. */
     public void testAnalyzerConstructsWithDefaultStopSet() {
-        VietnameseConfig config = new VietnameseConfig(Settings.EMPTY);
+        VietnameseConfig config = VietnameseConfig.DEFAULT;
         try (VietnameseAnalyzer analyzer = new VietnameseAnalyzer(config)) {
             assertNotNull(analyzer);
         }
@@ -80,7 +79,7 @@ public class TestVietnameseAnalyzer extends ESTestCase {
 
     /** An empty stop-word set is valid; the analyzer must still construct cleanly. */
     public void testAnalyzerConstructsWithEmptyStopSet() {
-        VietnameseConfig config = new VietnameseConfig(Settings.EMPTY);
+        VietnameseConfig config = VietnameseConfig.DEFAULT;
         try (VietnameseAnalyzer analyzer = new VietnameseAnalyzer(config, CharArraySet.EMPTY_SET)) {
             assertNotNull(analyzer);
         }

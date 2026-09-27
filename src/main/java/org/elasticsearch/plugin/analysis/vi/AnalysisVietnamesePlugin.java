@@ -14,21 +14,15 @@
 
 package org.elasticsearch.plugin.analysis.vi;
 
-
 import org.apache.lucene.analysis.Analyzer;
 import org.elasticsearch.index.analysis.AnalyzerProvider;
 import org.elasticsearch.index.analysis.TokenFilterFactory;
 import org.elasticsearch.index.analysis.TokenizerFactory;
-import org.elasticsearch.index.analysis.VietnameseAnalyzerProvider;
-import org.elasticsearch.index.analysis.VietnameseStopTokenFilterFactory;
-import org.elasticsearch.index.analysis.VietnameseTokenizerFactory;
-import org.elasticsearch.indices.analysis.AnalysisModule;
+import org.elasticsearch.indices.analysis.AnalysisModule.AnalysisProvider;
 import org.elasticsearch.plugins.AnalysisPlugin;
 import org.elasticsearch.plugins.Plugin;
 
 import java.util.Map;
-
-import static java.util.Collections.singletonMap;
 
 /**
  * Vietnamese Analysis Plugin.
@@ -36,18 +30,23 @@ import static java.util.Collections.singletonMap;
  * @author duydo
  */
 public class AnalysisVietnamesePlugin extends Plugin implements AnalysisPlugin {
+
+    public static final String TOKENIZER_NAME = "vi_tokenizer";
+    public static final String ANALYZER_NAME = "vi_analyzer";
+    public static final String STOP_FILTER_NAME = "vi_stop";
+
     @Override
-    public Map<String, AnalysisModule.AnalysisProvider<TokenizerFactory>> getTokenizers() {
-        return singletonMap("vi_tokenizer", VietnameseTokenizerFactory::new);
+    public Map<String, AnalysisProvider<TokenizerFactory>> getTokenizers() {
+        return Map.of(TOKENIZER_NAME, VietnameseTokenizerFactory::new);
     }
 
     @Override
-    public Map<String, AnalysisModule.AnalysisProvider<AnalyzerProvider<? extends Analyzer>>> getAnalyzers() {
-        return singletonMap("vi_analyzer", VietnameseAnalyzerProvider::new);
+    public Map<String, AnalysisProvider<AnalyzerProvider<? extends Analyzer>>> getAnalyzers() {
+        return Map.of(ANALYZER_NAME, VietnameseAnalyzerProvider::new);
     }
 
     @Override
-    public Map<String, AnalysisModule.AnalysisProvider<TokenFilterFactory>> getTokenFilters() {
-        return singletonMap("vi_stop", VietnameseStopTokenFilterFactory::new);
+    public Map<String, AnalysisProvider<TokenFilterFactory>> getTokenFilters() {
+        return Map.of(STOP_FILTER_NAME, VietnameseStopTokenFilterFactory::new);
     }
 }
