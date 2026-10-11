@@ -5,16 +5,14 @@
         <format>zip</format>
     </formats>
     <includeBaseDirectory>false</includeBaseDirectory>
-    <files>
-        <file>
-            <source>${project.basedir}/src/main/resources/plugin-descriptor.properties</source>
+    <fileSets>
+        <!-- stable-plugin-descriptor.properties, named_components.json, entitlement-policy.yaml -->
+        <fileSet>
+            <directory>${project.basedir}/src/main/plugin-metadata</directory>
+            <outputDirectory>/</outputDirectory>
             <filtered>true</filtered>
-        </file>
-        <file>
-            <source>${project.basedir}/src/main/plugin-metadata/entitlement-policy.yaml</source>
-            <filtered>true</filtered>
-        </file>
-    </files>
+        </fileSet>
+    </fileSets>
     <dependencySets>
         <dependencySet>
             <useProjectArtifact>true</useProjectArtifact>

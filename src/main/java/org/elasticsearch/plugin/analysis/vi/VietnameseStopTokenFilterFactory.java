@@ -17,27 +17,41 @@ package org.elasticsearch.plugin.analysis.vi;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.StopFilter;
 import org.apache.lucene.analysis.TokenStream;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.env.Environment;
-import org.elasticsearch.index.IndexSettings;
-import org.elasticsearch.index.analysis.AbstractTokenFilterFactory;
+import org.elasticsearch.plugin.Inject;
+import org.elasticsearch.plugin.NamedComponent;
+import org.elasticsearch.plugin.analysis.TokenFilterFactory;
 
 /**
  * Factory for a {@link StopFilter} with Vietnamese stop words, registered as {@code vi_stop}.
  *
  * @author duydo
  */
-public class VietnameseStopTokenFilterFactory extends AbstractTokenFilterFactory {
+@NamedComponent(VietnameseStopTokenFilterFactory.NAME)
+public class VietnameseStopTokenFilterFactory implements TokenFilterFactory {
 
-    private final CharArraySet stopWords;
+    public static final String NAME = "vi_stop";
 
-    public VietnameseStopTokenFilterFactory(IndexSettings indexSettings, Environment env, String name, Settings settings) {
-        super(name);
-        stopWords = VietnameseStopWords.parse(env, settings);
+    private final VietnameseAnalysisSettings settings;
+    /** Resolved on first use, see {@link VietnameseStopWords}. */
+    private volatile CharArraySet stopWords;
+
+    @Inject
+    public VietnameseStopTokenFilterFactory(VietnameseAnalysisSettings settings) {
+        this.settings = settings;
     }
 
     @Override
     public TokenStream create(TokenStream tokenStream) {
-        return new StopFilter(tokenStream, stopWords);
+        return new StopFilter(tokenStream, stopWords());
+    }
+
+    private CharArraySet stopWords() {
+        CharArraySet words = stopWords;
+        if (words == null) {
+            // Resolving is idempotent, so a concurrent first use only does redundant work
+            words = VietnameseStopWords.resolve(settings);
+            stopWords = words;
+        }
+        return words;
     }
 }

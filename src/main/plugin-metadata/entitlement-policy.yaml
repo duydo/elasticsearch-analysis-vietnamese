@@ -1,2 +1,12 @@
-ALL-UNNAMED:
+# Elasticsearch loads a stable plugin into a module named "synthetic.<plugin name with dots>", and resolves
+# entitlements by that module name. Policy scopes are only validated against real module names when the
+# descriptor sets modular=true, so the jar declares the same name as its Automatic-Module-Name (see pom.xml).
+# Granting entitlements to ALL-UNNAMED does not work for stable plugins.
+synthetic.elasticsearch.analysis.vietnamese:
+  # libcoccoc_tokenizer_jni
   - load_native_libraries
+  # stopwords_path files, relative to the config directory
+  - files:
+      - relative_path: ""
+        relative_to: config
+        mode: read

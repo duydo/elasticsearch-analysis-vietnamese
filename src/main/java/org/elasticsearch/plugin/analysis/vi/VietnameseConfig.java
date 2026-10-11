@@ -15,34 +15,23 @@
 package org.elasticsearch.plugin.analysis.vi;
 
 import com.coccoc.Tokenizer.TokenizeOption;
-import org.elasticsearch.common.settings.Settings;
 
 /**
- * Settings shared by {@code vi_tokenizer} and {@code vi_analyzer}.
+ * Tokenizer options shared by {@code vi_tokenizer} and {@code vi_analyzer}.
  *
  * @param dictPath        directory containing the CocCoc tokenizer dictionaries
  * @param keepPunctuation whether punctuation tokens are emitted
- * @param splitHost       whether host names are split into their parts
- * @param splitUrl        whether URLs are split into their parts (takes precedence over {@code splitHost})
+ * @param splitHost       whether host names are kept as whole words
+ * @param splitUrl        whether words inside domain names are segmented (takes precedence over {@code splitHost})
  */
 public record VietnameseConfig(String dictPath, boolean keepPunctuation, boolean splitHost, boolean splitUrl) {
 
     public static final String DEFAULT_DICT_PATH = "/usr/local/share/tokenizer/dicts";
 
-    public static final String DICT_PATH = "dict_path";
-    public static final String KEEP_PUNCTUATION = "keep_punctuation";
-    public static final String SPLIT_HOST = "split_host";
-    public static final String SPLIT_URL = "split_url";
-
     public static final VietnameseConfig DEFAULT = new VietnameseConfig(DEFAULT_DICT_PATH, false, false, false);
 
-    public static VietnameseConfig fromSettings(Settings settings) {
-        return new VietnameseConfig(
-            settings.get(DICT_PATH, DEFAULT_DICT_PATH),
-            settings.getAsBoolean(KEEP_PUNCTUATION, false),
-            settings.getAsBoolean(SPLIT_HOST, false),
-            settings.getAsBoolean(SPLIT_URL, false)
-        );
+    public static VietnameseConfig from(VietnameseAnalysisSettings settings) {
+        return new VietnameseConfig(settings.dictPath(), settings.keepPunctuation(), settings.splitHost(), settings.splitUrl());
     }
 
     public TokenizeOption tokenizeOption() {

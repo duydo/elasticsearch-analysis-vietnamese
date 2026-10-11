@@ -18,84 +18,37 @@ import com.coccoc.Tokenizer.TokenizeOption;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.test.ESTestCase;
 
+import static org.elasticsearch.plugin.analysis.vi.StablePluginTestHelper.analysisSettings;
+
 /**
- * Unit tests for {@link VietnameseConfig}.
- *
- * <p>Verifies that all four settings ({@code dict_path}, {@code keep_punctuation},
- * {@code split_url}, {@code split_host}) are parsed correctly and that defaults apply
- * when the settings are absent. No native library is required.
+ * Unit tests for {@link VietnameseConfig} built from the injected {@link VietnameseAnalysisSettings}.
+ * No native library is required.
  */
 public class VietnameseConfigTests extends ESTestCase {
 
     public void testDefaultValues() {
-        VietnameseConfig config = VietnameseConfig.DEFAULT;
-        assertEquals(VietnameseConfig.DEFAULT_DICT_PATH, config.dictPath());
-        assertFalse("keep_punctuation should default to false", config.keepPunctuation());
-        assertFalse("split_host should default to false", config.splitHost());
-        assertFalse("split_url should default to false", config.splitUrl());
+        assertEquals(VietnameseConfig.DEFAULT, VietnameseConfig.from(analysisSettings(Settings.EMPTY)));
     }
 
-    public void testDictPathSetting() {
-        Settings settings = Settings.builder()
-                .put("dict_path", "/custom/dicts")
-                .build();
-        VietnameseConfig config = VietnameseConfig.fromSettings(settings);
-        assertEquals("/custom/dicts", config.dictPath());
-        // Other settings should keep their defaults
-        assertFalse(config.keepPunctuation());
-        assertFalse(config.splitHost());
-        assertFalse(config.splitUrl());
-    }
-
-    public void testKeepPunctuationSetting() {
-        Settings settings = Settings.builder()
-                .put("keep_punctuation", true)
-                .build();
-        VietnameseConfig config = VietnameseConfig.fromSettings(settings);
-        assertTrue(config.keepPunctuation());
-        assertFalse(config.splitHost());
-        assertFalse(config.splitUrl());
-    }
-
-    public void testSplitUrlSetting() {
-        Settings settings = Settings.builder()
-                .put("split_url", true)
-                .build();
-        VietnameseConfig config = VietnameseConfig.fromSettings(settings);
-        assertTrue(config.splitUrl());
-        assertFalse(config.splitHost());  // unrelated setting must not be affected
-    }
-
-    public void testSplitHostSetting() {
-        Settings settings = Settings.builder()
-                .put("split_host", true)
-                .build();
-        VietnameseConfig config = VietnameseConfig.fromSettings(settings);
-        assertTrue(config.splitHost());
-        assertFalse(config.splitUrl());   // unrelated setting must not be affected
-    }
-
-    public void testAllSettingsTogether() {
+    public void testAllSettings() {
         Settings settings = Settings.builder()
                 .put("dict_path", "/opt/vi/dicts")
                 .put("keep_punctuation", true)
                 .put("split_url", true)
                 .put("split_host", true)
                 .build();
-        VietnameseConfig config = VietnameseConfig.fromSettings(settings);
-        assertEquals("/opt/vi/dicts", config.dictPath());
-        assertTrue(config.keepPunctuation());
-        assertTrue(config.splitUrl());
-        assertTrue(config.splitHost());
+        assertEquals(new VietnameseConfig("/opt/vi/dicts", true, true, true), VietnameseConfig.from(analysisSettings(settings)));
     }
 
-    public void testDefaultDictPathConstantIsNonEmpty() {
-        assertNotNull(VietnameseConfig.DEFAULT_DICT_PATH);
-        assertFalse(VietnameseConfig.DEFAULT_DICT_PATH.isEmpty());
-    }
-
-    public void testDefaultMatchesEmptySettings() {
-        assertEquals(VietnameseConfig.DEFAULT, VietnameseConfig.fromSettings(Settings.EMPTY));
+    public void testEachSettingIsIndependent() {
+        assertEquals(new VietnameseConfig("/d", false, false, false),
+            VietnameseConfig.from(analysisSettings(Settings.builder().put("dict_path", "/d").build())));
+        assertEquals(new VietnameseConfig(VietnameseConfig.DEFAULT_DICT_PATH, true, false, false),
+            VietnameseConfig.from(analysisSettings(Settings.builder().put("keep_punctuation", true).build())));
+        assertEquals(new VietnameseConfig(VietnameseConfig.DEFAULT_DICT_PATH, false, true, false),
+            VietnameseConfig.from(analysisSettings(Settings.builder().put("split_host", true).build())));
+        assertEquals(new VietnameseConfig(VietnameseConfig.DEFAULT_DICT_PATH, false, false, true),
+            VietnameseConfig.from(analysisSettings(Settings.builder().put("split_url", true).build())));
     }
 
     public void testTokenizeOption() {

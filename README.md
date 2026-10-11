@@ -2,7 +2,7 @@
 
 [![Build Status](https://github.com/duydo/elasticsearch-analysis-vietnamese/actions/workflows/test.yml/badge.svg)](https://github.com/duydo/elasticsearch-analysis-vietnamese/actions/workflows/test.yml)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE.txt)
-[![Elasticsearch](https://img.shields.io/badge/Elasticsearch-9.5.5-005571?logo=elasticsearch)](https://www.elastic.co/elasticsearch/)
+[![Elasticsearch](https://img.shields.io/badge/Elasticsearch-9.5%2B-005571?logo=elasticsearch)](https://www.elastic.co/elasticsearch/)
 
 Vietnamese text analysis for Elasticsearch, powered by the [CocCoc tokenizer](https://github.com/coccoc/coccoc-tokenizer), the C++ word segmenter behind the CocCoc search engine.
 
@@ -29,7 +29,7 @@ The plugin calls a native library, so **every Elasticsearch node** needs:
 1. the CocCoc tokenizer native library (`libcoccoc_tokenizer_jni`) and its dictionaries, and
 2. the plugin itself.
 
-The plugin version must match your Elasticsearch version exactly.
+The plugin is built on the Elasticsearch [stable plugin API](https://www.elastic.co/docs/extend/elasticsearch/creating-stable-plugins), so a single release works on Elasticsearch 9.5.0 and every later 9.x release; you do not need a build per Elasticsearch version.
 
 ### Option 1: Docker (easiest)
 
@@ -39,7 +39,7 @@ The [Dockerfile](Dockerfile) builds the native library and the plugin, then inst
 git clone https://github.com/duydo/elasticsearch-analysis-vietnamese.git
 cd elasticsearch-analysis-vietnamese
 
-cp .env.sample .env          # set ELASTIC_PASSWORD, and ES_VERSION (any 9.x release, default 9.5.5)
+cp .env.sample .env          # set ELASTIC_PASSWORD, and ES_VERSION (9.5.0 or later, default 9.5.5)
 mkdir -p data && chmod a+rw data
 
 docker compose up --build
@@ -76,7 +76,7 @@ export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 
 ```bash
 bin/elasticsearch-plugin install --batch \
-  https://github.com/duydo/elasticsearch-analysis-vietnamese/releases/download/v9.5.5/elasticsearch-analysis-vietnamese-9.5.5.zip
+  https://github.com/duydo/elasticsearch-analysis-vietnamese/releases/download/v9.5.0/elasticsearch-analysis-vietnamese-9.5.0.zip
 ```
 
 `--batch` accepts the `load_native_libraries` entitlement that the plugin needs to load the tokenizer. Restart the node afterwards.
@@ -111,7 +111,7 @@ Each token has a type: `<WORD>`, `<NUMBER>` or `<PUNCT>`. Decimal commas are nor
 | Parameter | Description | Default |
 | :--- | :--- | :--- |
 | `stopwords` | `_vi_` (alias `_vietnamese_`) for the [built-in list](src/main/resources/org/elasticsearch/plugin/analysis/vi/lucene/stopwords.txt), `_none_` for no stop words, or an array of words. | `_vi_` |
-| `stopwords_path` | Path to a stop word file (one word per line, UTF-8), absolute or relative to the Elasticsearch `config` directory. | – |
+| `stopwords_path` | Path to a stop word file (one word per line, UTF-8, `#` starts a comment), relative to the Elasticsearch `config` directory. The file must be inside that directory. | – |
 | `ignore_case` | Match stop words case-insensitively. | `false` |
 
 The built-in list is lowercase, so put `vi_stop` after `lowercase` or set `ignore_case: true`.
@@ -215,24 +215,17 @@ Requirements:
 mvn clean package
 ```
 
-The plugin ZIP is written to `target/releases/`. See [TESTING.md](TESTING.md) for running the tests.
-
-To build for another Elasticsearch 9.x release, set the project version to that release first. The Elasticsearch dependency and the plugin descriptor follow it:
-
-```bash
-mvn versions:set -DnewVersion=9.4.8 -DgenerateBackupPoms=false
-mvn clean package
-```
+The plugin ZIP is written to `target/releases/` and installs on any Elasticsearch release from 9.5.0 on. See [TESTING.md](TESTING.md) for running the tests.
 
 ---
 
 ## 📋 Compatibility
 
-Each plugin release is built for exactly one Elasticsearch version. The current code builds and passes its tests against Elasticsearch 9.0.0, 9.1.0, 9.2.0, 9.3.0, 9.4.8 and 9.5.5; see [Building from Source](#-building-from-source) to build for your version.
+Since 9.5.0 the plugin is a stable plugin: one release runs on its minimum Elasticsearch version and on every later release of the same major version. Earlier releases were classic plugins, built for exactly one Elasticsearch version.
 
 | Plugin | Elasticsearch | Java |
 | :--- | :--- | :--- |
-| 9.5.5 | 9.5.5 | 21+ |
+| 9.5.0 | 9.5.0 and later 9.x | 21+ |
 | 9.3.0 | 9.3.0 | 21+ |
 | 8.7.0 | 8.7.x | 17+ |
 | 7.16.1 | 7.16.x – 7.17.x | 11+ |
@@ -246,6 +239,12 @@ Elasticsearch cannot find `libcoccoc_tokenizer_jni`. Make sure the library is in
 
 **`Cannot initialize tokenizer with dict_path [...]`**
 The dictionary directory is missing or incomplete. It should contain `alphabetic`, `numeric`, `multiterm_trie.dump`, `syllable_trie.dump` and related files. Re-run `sudo make install` for the tokenizer, or point `dict_path` to the right directory.
+
+**`Stable Plugin [elasticsearch-analysis-vietnamese] was built for Elasticsearch version 9.5.0 but earlier version [...] is running`**
+Your Elasticsearch is older than 9.5.0. Upgrade Elasticsearch, or use an older plugin release from the [compatibility table](#-compatibility).
+
+**`stopwords_path [...] must be inside the Elasticsearch config directory [...]`**
+The plugin may only read files in the `config` directory. Move the file there and set `stopwords_path` relative to it, for example `analysis/vi_stop.txt`.
 
 **`Tokenizer already initialized with dict_path [...], cannot use [...]`**
 Two indices on the same node use different `dict_path` values. Use the same dictionary directory everywhere (see the note under [`vi_tokenizer`](#vi_tokenizer)).

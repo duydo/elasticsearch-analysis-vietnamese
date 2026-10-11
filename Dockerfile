@@ -1,4 +1,4 @@
-# Elasticsearch version to build the plugin for and to run (the plugin must match it exactly)
+# Elasticsearch version to run. The plugin is a stable plugin and runs on any release from 9.5.0 on.
 ARG ES_VERSION=9.5.5
 
 # ── Stage 1: Build coccoc-tokenizer ──────────────────────────────────
@@ -41,12 +41,9 @@ ENV PATH=$MVN_HOME/bin:$PATH
 
 WORKDIR /tmp/elasticsearch-analysis-vietnamese
 
-# Copy POM first to cache dependency downloads separately from source changes.
-# The plugin version follows the Elasticsearch version (see pom.xml), so set both to ES_VERSION.
-ARG ES_VERSION
+# Copy POM first to cache dependency downloads separately from source changes
 COPY pom.xml .
-RUN mvn --batch-mode -q versions:set -DnewVersion=${ES_VERSION} -DgenerateBackupPoms=false && \
-    mvn --batch-mode -q dependency:go-offline
+RUN mvn --batch-mode -q dependency:go-offline
 
 # Copy source and build
 COPY src/ src/
@@ -63,9 +60,8 @@ USER root
 COPY --from=coccoc-builder $COCCOC_INSTALL_PATH/lib/libcoccoc_tokenizer_jni.so /usr/lib/
 COPY --from=coccoc-builder $COCCOC_DICT_PATH $COCCOC_DICT_PATH
 COPY --from=plugin-builder \
-    /tmp/elasticsearch-analysis-vietnamese/target/releases/elasticsearch-analysis-vietnamese-$ES_VERSION.zip /tmp/
-RUN /usr/share/elasticsearch/bin/elasticsearch-plugin install --batch \
-        file:///tmp/elasticsearch-analysis-vietnamese-$ES_VERSION.zip && \
-    rm /tmp/elasticsearch-analysis-vietnamese-$ES_VERSION.zip
+    /tmp/elasticsearch-analysis-vietnamese/target/releases/elasticsearch-analysis-vietnamese-*.zip /tmp/analysis-vietnamese.zip
+RUN /usr/share/elasticsearch/bin/elasticsearch-plugin install --batch file:///tmp/analysis-vietnamese.zip && \
+    rm /tmp/analysis-vietnamese.zip
 
 USER elasticsearch

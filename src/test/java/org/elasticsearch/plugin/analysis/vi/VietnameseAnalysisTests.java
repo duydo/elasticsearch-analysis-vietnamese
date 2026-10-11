@@ -6,30 +6,33 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.charfilter.MappingCharFilter;
 import org.apache.lucene.analysis.charfilter.NormalizeCharMap;
-import org.elasticsearch.cluster.metadata.IndexMetadata;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.env.Environment;
-import org.elasticsearch.index.IndexVersion;
-import org.elasticsearch.index.analysis.AnalysisTestsHelper;
+import org.elasticsearch.core.CheckedRunnable;
 import org.elasticsearch.index.analysis.CustomAnalyzer;
 import org.elasticsearch.index.analysis.NamedAnalyzer;
 import org.elasticsearch.index.analysis.TokenizerFactory;
 import org.elasticsearch.plugin.analysis.vi.lucene.VietnameseAnalyzer;
 import org.elasticsearch.plugin.analysis.vi.lucene.VietnameseTokenizer;
-import org.elasticsearch.test.ESSingleNodeTestCase;
+import org.elasticsearch.test.ESTestCase;
 import org.junit.BeforeClass;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 
 import static org.apache.lucene.tests.analysis.BaseTokenStreamTestCase.assertAnalyzesTo;
 import static org.apache.lucene.tests.analysis.BaseTokenStreamTestCase.assertTokenStreamContents;
 import static org.hamcrest.Matchers.instanceOf;
 
 /**
- * Created by duydo on 2/19/17.
+ * Tokenization tests that load the plugin through Elasticsearch's stable plugin machinery
+ * (see {@link StablePluginTestHelper}). Requires the native library.
+ *
+ * @author duydo
  */
-public class VietnameseAnalysisTests extends ESSingleNodeTestCase {
+public class VietnameseAnalysisTests extends ESTestCase {
 
     @BeforeClass
     public static void suppressKnownNoisyLoggers() {
@@ -56,7 +59,7 @@ public class VietnameseAnalysisTests extends ESSingleNodeTestCase {
 
             TokenizerFactory tokenizerFactory = analysis.tokenizer.get("vi_tokenizer");
             assertNotNull(tokenizerFactory);
-            assertThat(tokenizerFactory, instanceOf(VietnameseTokenizerFactory.class));
+            assertThat(tokenizerFactory.create(), instanceOf(VietnameseTokenizer.class));
 
             assertNotNull(analysis.tokenFilter.get("vi_stop"));
         } finally {
@@ -110,6 +113,84 @@ public class VietnameseAnalysisTests extends ESSingleNodeTestCase {
                 new String[]{"công nghệ", "thông tin", "của", "việt nam"});
             assertAnalyzesTo(analysis.indexAnalyzers.get("custom"), text, new String[]{"công nghệ", "của", "việt nam"});
             assertAnalyzesTo(analysis.indexAnalyzers.get("ignore_case"), "Của Việt Nam", new String[]{"Việt Nam"});
+        } finally {
+            analysis.indexAnalyzers.close();
+        }
+    }
+
+    public void testStopWordsPath() throws IOException {
+        Path home = createTempDir();
+        Path file = Files.createDirectories(home.resolve("config")).resolve("vi_stop.txt");
+        Files.write(file, List.of("# comment", "thông tin", "", "  việt nam  "));
+        withEsHome(home, () -> {
+            Settings settings = Settings.builder()
+                    .put("index.analysis.analyzer.from_file.type", "vi_analyzer")
+                    .put("index.analysis.analyzer.from_file.stopwords_path", file.getFileName().toString())
+                    .put("index.analysis.filter.from_file.type", "vi_stop")
+                    .put("index.analysis.filter.from_file.stopwords_path", file.toAbsolutePath().toString())
+                    .put("index.analysis.analyzer.filtered.tokenizer", "vi_tokenizer")
+                    .putList("index.analysis.analyzer.filtered.filter", "lowercase", "from_file")
+                    .build();
+            TestAnalysis analysis = createTestAnalysis(settings);
+            try {
+                String text = "công nghệ thông tin của Việt Nam";
+                assertAnalyzesTo(analysis.indexAnalyzers.get("from_file"), text, new String[]{"công nghệ", "của"});
+                assertAnalyzesTo(analysis.indexAnalyzers.get("filtered"), text, new String[]{"công nghệ", "của"});
+            } finally {
+                analysis.indexAnalyzers.close();
+            }
+        });
+    }
+
+    public void testInvalidStopWordsPathIsRejected() throws IOException {
+        Path home = createTempDir();
+        Files.createDirectories(home.resolve("config"));
+        withEsHome(home, () -> {
+            for (String path : new String[]{"does-not-exist.txt", "/etc/hosts", "../outside.txt"}) {
+                Settings settings = Settings.builder()
+                        .put("index.analysis.analyzer.bad.type", "vi_analyzer")
+                        .put("index.analysis.analyzer.bad.stopwords_path", path)
+                        .build();
+                IllegalArgumentException e = expectThrows(IllegalArgumentException.class, () -> createTestAnalysis(settings));
+                assertTrue(e.getMessage(), e.getMessage().contains("stopwords_path [" + path + "]"));
+            }
+        });
+    }
+
+    /** Points the config directory lookup of {@link VietnameseStopWords} at {@code home/config}. */
+    private static void withEsHome(Path home, CheckedRunnable<IOException> runnable) throws IOException {
+        assumeTrue("ES_PATH_CONF takes precedence over es.path.home", System.getenv("ES_PATH_CONF") == null);
+        String previous = System.getProperty("es.path.home");
+        System.setProperty("es.path.home", home.toString());
+        try {
+            runnable.run();
+        } finally {
+            if (previous == null) {
+                System.clearProperty("es.path.home");
+            } else {
+                System.setProperty("es.path.home", previous);
+            }
+        }
+    }
+
+    public void testTokenizerSettings() throws IOException {
+        Settings settings = Settings.builder()
+                .put("index.analysis.tokenizer.url.type", "vi_tokenizer")
+                .put("index.analysis.tokenizer.url.split_url", true)
+                .put("index.analysis.tokenizer.punct.type", "vi_tokenizer")
+                .put("index.analysis.tokenizer.punct.keep_punctuation", "true")
+                .put("index.analysis.analyzer.url.tokenizer", "url")
+                .put("index.analysis.analyzer.punct.tokenizer", "punct")
+                .put("index.analysis.analyzer.vi_punct.type", "vi_analyzer")
+                .put("index.analysis.analyzer.vi_punct.keep_punctuation", true)
+                .build();
+        TestAnalysis analysis = createTestAnalysis(settings);
+        try {
+            assertAnalyzesTo(analysis.indexAnalyzers.get("url"), "duydo.me", new String[]{"duy", "do", "me"});
+            assertAnalyzesTo(analysis.indexAnalyzers.get("punct"), "Xin chào, Việt Nam!",
+                new String[]{"Xin", "chào", ",", "Việt Nam", "!"});
+            assertAnalyzesTo(analysis.indexAnalyzers.get("vi_punct"), "Xin chào, Việt Nam!",
+                new String[]{"xin", "chào", ",", "việt nam", "!"});
         } finally {
             analysis.indexAnalyzers.close();
         }
@@ -203,12 +284,7 @@ public class VietnameseAnalysisTests extends ESSingleNodeTestCase {
         assertTrue(e.getMessage(), e.getMessage().contains("/another/dict/path"));
     }
 
-    public TestAnalysis createTestAnalysis(Settings analysisSettings) throws IOException {
-        Settings settings = Settings.builder()
-                .put(IndexMetadata.SETTING_VERSION_CREATED, IndexVersion.current())
-                .put(Environment.PATH_HOME_SETTING.getKey(), createTempDir())
-                .put(analysisSettings)
-                .build();
-        return AnalysisTestsHelper.createTestAnalysisFromSettings(settings, new AnalysisVietnamesePlugin());
+    private TestAnalysis createTestAnalysis(Settings analysisSettings) throws IOException {
+        return StablePluginTestHelper.createTestAnalysis(createTempDir(), analysisSettings);
     }
 }

@@ -15,10 +15,9 @@
 package org.elasticsearch.plugin.analysis.vi;
 
 import org.apache.lucene.analysis.Tokenizer;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.env.Environment;
-import org.elasticsearch.index.IndexSettings;
-import org.elasticsearch.index.analysis.AbstractTokenizerFactory;
+import org.elasticsearch.plugin.Inject;
+import org.elasticsearch.plugin.NamedComponent;
+import org.elasticsearch.plugin.analysis.TokenizerFactory;
 import org.elasticsearch.plugin.analysis.vi.lucene.VietnameseTokenizer;
 
 /**
@@ -26,12 +25,16 @@ import org.elasticsearch.plugin.analysis.vi.lucene.VietnameseTokenizer;
  *
  * @author duydo
  */
-public class VietnameseTokenizerFactory extends AbstractTokenizerFactory {
+@NamedComponent(VietnameseTokenizerFactory.NAME)
+public class VietnameseTokenizerFactory implements TokenizerFactory {
+
+    public static final String NAME = "vi_tokenizer";
+
     private final VietnameseConfig config;
 
-    public VietnameseTokenizerFactory(IndexSettings indexSettings, Environment env, String name, Settings settings) {
-        super(name);
-        config = VietnameseConfig.fromSettings(settings);
+    @Inject
+    public VietnameseTokenizerFactory(VietnameseAnalysisSettings settings) {
+        this.config = VietnameseConfig.from(settings);
     }
 
     @Override
