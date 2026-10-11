@@ -43,14 +43,12 @@ public class VietnameseAnalysisIntegrationTests extends ESIntegTestCase {
         Configurator.setLevel("org.elasticsearch.index.shard.IndexShard", Level.ERROR);
     }
 
-    @Override
-    public void setUp() throws Exception {
-        assumeTrue(
-            "Requires the CocCoc native library (libcoccoc_tokenizer_jni). See TESTING.md.",
-            NativeLibrary.AVAILABLE
-        );
-        super.setUp();
+    @BeforeClass
+    public static void assumeNativeLibrary() {
+        assumeTrue("Requires the CocCoc native library (libcoccoc_tokenizer_jni). See TESTING.md.",
+            NativeLibrary.AVAILABLE);
     }
+
     @Override
     protected Collection<Class<? extends Plugin>> nodePlugins() {
         return Collections.singleton(AnalysisVietnamesePlugin.class);

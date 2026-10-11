@@ -41,9 +41,8 @@ public class VietnameseAnalysisTests extends ESSingleNodeTestCase {
         Configurator.setLevel("org.elasticsearch.index.shard.IndexShard", Level.ERROR);
     }
 
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
+    @BeforeClass
+    public static void assumeNativeLibrary() {
         assumeTrue("Requires the CocCoc native library (libcoccoc_tokenizer_jni). See TESTING.md.",
             NativeLibrary.AVAILABLE);
     }

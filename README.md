@@ -2,7 +2,7 @@
 
 [![Build Status](https://github.com/duydo/elasticsearch-analysis-vietnamese/actions/workflows/test.yml/badge.svg)](https://github.com/duydo/elasticsearch-analysis-vietnamese/actions/workflows/test.yml)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE.txt)
-[![Elasticsearch](https://img.shields.io/badge/Elasticsearch-9.3.0-005571?logo=elasticsearch)](https://www.elastic.co/elasticsearch/)
+[![Elasticsearch](https://img.shields.io/badge/Elasticsearch-9.5.5-005571?logo=elasticsearch)](https://www.elastic.co/elasticsearch/)
 
 Vietnamese text analysis for Elasticsearch, powered by the [CocCoc tokenizer](https://github.com/coccoc/coccoc-tokenizer), the C++ word segmenter behind the CocCoc search engine.
 
@@ -39,7 +39,7 @@ The [Dockerfile](Dockerfile) builds the native library and the plugin, then inst
 git clone https://github.com/duydo/elasticsearch-analysis-vietnamese.git
 cd elasticsearch-analysis-vietnamese
 
-cp .env.sample .env          # set ELASTIC_PASSWORD, and ES_VERSION (any 9.x release, default 9.3.0)
+cp .env.sample .env          # set ELASTIC_PASSWORD, and ES_VERSION (any 9.x release, default 9.5.5)
 mkdir -p data && chmod a+rw data
 
 docker compose up --build
@@ -76,7 +76,7 @@ export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 
 ```bash
 bin/elasticsearch-plugin install --batch \
-  https://github.com/duydo/elasticsearch-analysis-vietnamese/releases/download/v9.3.0/elasticsearch-analysis-vietnamese-9.3.0.zip
+  https://github.com/duydo/elasticsearch-analysis-vietnamese/releases/download/v9.5.5/elasticsearch-analysis-vietnamese-9.5.5.zip
 ```
 
 `--batch` accepts the `load_native_libraries` entitlement that the plugin needs to load the tokenizer. Restart the node afterwards.
@@ -220,7 +220,7 @@ The plugin ZIP is written to `target/releases/`. See [TESTING.md](TESTING.md) fo
 To build for another Elasticsearch 9.x release, set the project version to that release first. The Elasticsearch dependency and the plugin descriptor follow it:
 
 ```bash
-mvn versions:set -DnewVersion=9.2.0 -DgenerateBackupPoms=false
+mvn versions:set -DnewVersion=9.4.8 -DgenerateBackupPoms=false
 mvn clean package
 ```
 
@@ -228,10 +228,11 @@ mvn clean package
 
 ## 📋 Compatibility
 
-Each plugin release is built for exactly one Elasticsearch version. The current code builds and passes its tests against Elasticsearch 9.0.0, 9.1.0, 9.2.0 and 9.3.0; see [Building from Source](#-building-from-source) to build for your version.
+Each plugin release is built for exactly one Elasticsearch version. The current code builds and passes its tests against Elasticsearch 9.0.0, 9.1.0, 9.2.0, 9.3.0, 9.4.8 and 9.5.5; see [Building from Source](#-building-from-source) to build for your version.
 
 | Plugin | Elasticsearch | Java |
 | :--- | :--- | :--- |
+| 9.5.5 | 9.5.5 | 21+ |
 | 9.3.0 | 9.3.0 | 21+ |
 | 8.7.0 | 8.7.x | 17+ |
 | 7.16.1 | 7.16.x – 7.17.x | 11+ |

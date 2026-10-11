@@ -1,5 +1,5 @@
 # Elasticsearch version to build the plugin for and to run (the plugin must match it exactly)
-ARG ES_VERSION=9.3.0
+ARG ES_VERSION=9.5.5
 
 # ── Stage 1: Build coccoc-tokenizer ──────────────────────────────────
 FROM docker.elastic.co/elasticsearch/elasticsearch:$ES_VERSION AS coccoc-builder
