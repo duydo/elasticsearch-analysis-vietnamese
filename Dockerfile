@@ -1,5 +1,5 @@
 # ── Stage 1: Build coccoc-tokenizer ──────────────────────────────────
-ARG ES_VERSION
+ARG ES_VERSION=9.3.0
 FROM docker.elastic.co/elasticsearch/elasticsearch:$ES_VERSION AS coccoc-builder
 
 USER root
@@ -39,14 +39,16 @@ ENV PATH=$MVN_HOME/bin:$PATH
 
 WORKDIR /tmp/elasticsearch-analysis-vietnamese
 
+# ES_VERSION before go-offline, so the cached dependencies match the version
+ARG ES_VERSION
+
 # Copy POM first to cache dependency downloads separately from source changes
 COPY pom.xml .
-RUN mvn dependency:go-offline --batch-mode -q
+RUN mvn dependency:go-offline --batch-mode -q -Drevision=$ES_VERSION
 
 # Copy source and build
 COPY src/ src/
-ARG ES_VERSION
-RUN mvn --batch-mode -Dmaven.test.skip -e package -DprojectVersion=$ES_VERSION
+RUN mvn --batch-mode -Dmaven.test.skip -e package -Drevision=$ES_VERSION
 
 # ── Stage 3: Final runtime image ────────────────────────────────────
 FROM docker.elastic.co/elasticsearch/elasticsearch:$ES_VERSION

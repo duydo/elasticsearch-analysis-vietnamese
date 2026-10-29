@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.elasticsearch</groupId>
     <artifactId>elasticsearch-analysis-vietnamese</artifactId>
-    <version>9.3.0</version>
+    <version>${revision}</version>
     <packaging>jar</packaging>
     <name>elasticsearch-analysis-vietnamese</name>
     <url>https://github.com/duydo/elasticsearch-analysis-vietnamese/</url>
@@ -29,6 +29,7 @@
         <url>http://github.com/duydo/elasticsearch-analysis-vietnamese</url>
     </scm>
     <properties>
+        <revision>9.3.0</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.java.version>21</project.build.java.version>
         <elasticsearch.version>${project.version}</elasticsearch.version>
