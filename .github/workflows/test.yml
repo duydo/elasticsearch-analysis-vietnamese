@@ -24,7 +24,7 @@ jobs:
         working-directory: ./coccoc-tokenizer
         run: |
           mkdir build && cd build
-          cmake -DBUILD_JAVA=1 ..
+          cmake -DBUILD_JAVA=1 -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ..
           sudo make install
       - name: Set up JDK ${{ matrix.entry.version }}
         uses: actions/setup-java@v5
