@@ -17,7 +17,7 @@ jobs:
       - name: Checkout coccoc-tokenizer
         uses: actions/checkout@v5
         with:
-          repository: coccoc/coccoc-tokenizer
+          repository: duydo/coccoc-tokenizer
           path: coccoc-tokenizer
           fetch-depth: 1
       - name: Build coccoc-tokenizer
