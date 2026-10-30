@@ -17,7 +17,7 @@ RUN git clone --depth 1 https://github.com/duydo/coccoc-tokenizer.git && \
     mkdir coccoc-tokenizer/build
 
 WORKDIR /tmp/coccoc-tokenizer/build
-RUN cmake -DJAVA_HOME=${JAVA_HOME} -DBUILD_JAVA=1 .. && make install
+RUN cmake -DJAVA_HOME=${JAVA_HOME} -DBUILD_JAVA=1 -DCMAKE_POLICY_VERSION_MINIMUM=3.5 .. && make install
 
 # ── Stage 2: Build analysis-vietnamese plugin ────────────────────────
 FROM docker.elastic.co/elasticsearch/elasticsearch:$ES_VERSION AS plugin-builder
